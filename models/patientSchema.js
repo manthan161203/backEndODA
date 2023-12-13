@@ -4,24 +4,15 @@ const patientSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
-        required: true
+        required: true,
+        unique: true
     },
-    gender: {
-        type: String,
-        enum: ['Male', 'Female', 'Other'],
-        required: true
-    },
-    medicalHistory: {
+    medicalHistory: [{
         type: String
-    },
-    allergies: {
+    }],
+    allergies: [{
         type: String
-    },
-    role: {
-        type: String,
-        enum: ['patient'],
-        required: true
-    },
+    }],
     emergencyContact: {
         name: {
             type: String
@@ -40,7 +31,7 @@ const patientSchema = new mongoose.Schema({
         weight: {
             type: Number
         },
-        bloodType: {
+        bloodGroup: {
             type: String
         }
     },

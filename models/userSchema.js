@@ -14,6 +14,11 @@ const userSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
+    userName: {
+        type: String,
+        required: true,
+        unique: true
+    },
     password: {
         type: String,
         required: true
@@ -30,20 +35,26 @@ const userSchema = new mongoose.Schema({
         type: String,
         required: true
     },
+    gender: {
+        type: String,
+        enum: ['Male', 'Female', 'Other'],
+        required: true
+    },
     role: {
         type: String,
         enum: ['patient', 'doctor', 'therapist', 'admin', 'superAdmin'],
         required: true
     },
-    otp: {
+    otp: [{
         code: {
             type: String
+            
         },
         expiryTime: {
             type: Date,
             default: Date.now() + 5 * 60 * 1000,
         }
-    },
+    }],
     image: {
         type: String,
         required: false
