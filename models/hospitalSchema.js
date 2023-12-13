@@ -1,4 +1,3 @@
-// hospitalSchema.js
 const mongoose = require('mongoose');
 
 const hospitalSchema = new mongoose.Schema({

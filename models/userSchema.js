@@ -40,7 +40,7 @@ const userSchema = new mongoose.Schema({
             type: String
         },
         expiryTime: {
-            type: Time,
+            type: Date,
             default: Date.now() + 5 * 60 * 1000,
         }
     },
