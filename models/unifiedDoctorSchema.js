@@ -1,4 +1,3 @@
-// unifiedDoctorSchema.js
 const mongoose = require('mongoose')
 const User = require('./userSchema')
 
@@ -37,7 +36,6 @@ const unifiedDoctorSchema = new mongoose.Schema(
                 return this.doctorType === 'therapist'
             }
         },
-        // Appointment time slots
         appointmentTimeSlots: [
             {
                 day: {
@@ -60,7 +58,7 @@ const unifiedDoctorSchema = new mongoose.Schema(
         ],
         assignedDepartments: [
             {
-                type: String // Array of strings indicating assigned departments
+                type: String
             }
         ]
     },

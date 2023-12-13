@@ -6,10 +6,6 @@ const patientSchema = new mongoose.Schema({
         ref: 'User',
         required: true
     },
-    dateOfBirth: {
-        type: Date,
-        required: true
-    },
     gender: {
         type: String,
         enum: ['Male', 'Female', 'Other'],
@@ -20,6 +16,11 @@ const patientSchema = new mongoose.Schema({
     },
     allergies: {
         type: String
+    },
+    role: {
+        type: String,
+        enum: ['patient'],
+        required: true
     },
     emergencyContact: {
         name: {

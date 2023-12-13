@@ -1,7 +1,6 @@
-// adminSchema.js
 const mongoose = require('mongoose');
 
-const adminSchema = new mongoose.Schema({
+const superAdminSchema = new mongoose.Schema({
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'User',
@@ -10,14 +9,11 @@ const adminSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['admin'],
+        enum: ['superAdmin'],
         required: true
     },
-    assignedDepartments: [{
-        type: String
-    }],
 }, { timestamps: true });
 
-const Admin = mongoose.model('Admin', adminSchema);
+const SuperAdmin = mongoose.model('SuperAdmin', superAdminSchema);
 
-module.exports = Admin;
+module.exports = SuperAdmin;
