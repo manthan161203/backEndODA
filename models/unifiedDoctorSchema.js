@@ -53,11 +53,11 @@ const unifiedDoctorSchema = new mongoose.Schema({
             availableTimeSlots: [
                 {
                     startTime: {
-                        type: Date,
+                        type: String,
                         required: true
                     },
                     endTime: {
-                        type: Date,
+                        type: String,
                         required: true
                     }
                 }

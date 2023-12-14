@@ -24,7 +24,7 @@ const userSchema = new mongoose.Schema({
         required: true
     },
     dateOfBirth: {
-        type: Date,
+        type: String,
         required: true
     },
     phoneNumber: {
@@ -51,8 +51,7 @@ const userSchema = new mongoose.Schema({
             
         },
         expiryTime: {
-            type: Date,
-            default: Date.now() + 5 * 60 * 1000,
+            type: String,
         }
     }],
     image: {

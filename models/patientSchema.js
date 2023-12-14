@@ -26,10 +26,10 @@ const patientSchema = new mongoose.Schema({
     },
     healthMetrics: {
         height: {
-            type: Number
+            type: String
         },
         weight: {
-            type: Number
+            type: String
         },
         bloodGroup: {
             type: String
