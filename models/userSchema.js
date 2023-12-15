@@ -42,7 +42,7 @@ const userSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ['patient', 'doctor', 'therapist', 'admin', 'superAdmin'],
+        enum: ['patient', 'doctor', 'clinical doctor', 'therapist', 'admin', 'superAdmin'],
         required: true
     },
     otp: [{
