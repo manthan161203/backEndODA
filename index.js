@@ -9,6 +9,7 @@ const Doctor = require('./models/unifiedDoctorSchema')
 const SuperAdmin = require('./models/superAdminSchema')
 const Admin = require('./models/adminSchema')
 const Hospital = require('./models/hospitalSchema')
+const loginController = require('./controllers/loginController')
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -16,6 +17,9 @@ app.use(cors())
 
 // Connect to MongoDB
 connectDB()
+
+// Login Route
+app.post('/login', loginController.login);
 
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`)
