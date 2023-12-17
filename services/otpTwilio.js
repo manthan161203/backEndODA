@@ -4,7 +4,7 @@ const accountSid = 'ACbe2fa6e6fba7813b7de726a2041d9935';
 const authToken = '7b5d8f548322dcdf2c2e9ebbd7984f1e';
 const client = twilio(accountSid, authToken);
 
-const sendOTPviaSMS = async (phoneNumber, otp) => {
+const sendOTPViaSMS = async (phoneNumber, otp) => {
     try {
         const message = await client.messages.create({
             body: `Your OTP is: ${otp}`,
@@ -19,4 +19,4 @@ const sendOTPviaSMS = async (phoneNumber, otp) => {
     }
 };
 
-module.exports = sendOTPviaSMS;
+module.exports = sendOTPViaSMS;
