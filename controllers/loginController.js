@@ -44,7 +44,7 @@ const addOTPByUserId = async (req, res) => {
             await sendOTPViaSMS(phoneNumber, otp);
         } else if (sendMethod === 'email') {
             const email = user.email;
-            await sendOTPViaEmail(email, otp);
+            await sendOTPViaEmail(email, "Verification Code", "Your verification code is: " + otp);
         } else {
             throw new Error('Invalid send method');
         }
@@ -75,7 +75,7 @@ const addOTPByUserName = async (req, res) => {
             await sendOTPViaSMS(phoneNumber, otp);
         } else if (sendMethod === 'email') {
             const email = user.email;
-            await sendOTPViaEmail(email, otp);
+            await sendOTPViaEmail(email, "Verification Code", "Your verification code is: " + otp);
         } else {
             throw new Error('Invalid send method');
         }
