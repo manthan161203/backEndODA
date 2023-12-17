@@ -1,26 +1,22 @@
-const express = require('express')
-const { PORT, connectDB } = require('./config/database')
-const cors = require('cors')
-const app = express()
-const User = require('./models/userSchema')
-const Patient = require('./models/patientSchema')
-const Appointment = require('./models/appointmentSchema')
-const Doctor = require('./models/unifiedDoctorSchema')
-const SuperAdmin = require('./models/superAdminSchema')
-const Admin = require('./models/adminSchema')
-const Hospital = require('./models/hospitalSchema')
-const loginController = require('./controllers/loginController')
+const express = require('express');
+const { PORT, connectDB } = require('./config/database');
+const cors = require('cors');
+const loginRouter = require('./routes/loginRouter'); // Import your loginRouter
 
-app.use(express.json())
-app.use(express.urlencoded({ extended: true }))
-app.use(cors())
+const app = express();
+
+// Middleware
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors());
 
 // Connect to MongoDB
-connectDB()
+connectDB();
 
-// Login Route
-app.post('/login', loginController.login);
+// Routes
+app.use('/login', loginRouter); // Use the loginRouter for '/login' route
 
+// Start the server
 app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`)
-})
+    console.log(`Server is running on port ${PORT}`);
+});
