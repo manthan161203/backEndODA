@@ -2,6 +2,7 @@ const express = require('express');
 const { PORT, connectDB } = require('./config/database');
 const cors = require('cors');
 const loginRouter = require('./routers/loginRouter');
+const registerRouter = require('./routers/registerRouter');
 
 const app = express();
 
@@ -15,6 +16,7 @@ connectDB();
 
 // Routes
 app.use('/login', loginRouter);
+app.use('/register', registerRouter);
 
 // Start the server
 app.listen(PORT, () => {
