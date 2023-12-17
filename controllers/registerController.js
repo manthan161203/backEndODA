@@ -9,7 +9,7 @@ const generateOTP = () => {
 };
 
 const verifyOTP = (user, otpCode) => {
-    const otpIndex = user.otpList.findIndex(otp => otp.code === otpCode && new Date(otp.expiryTime) > new Date());
+    const otpIndex = user.otp.findIndex(otp => otp.code === otpCode && new Date(otp.expiryTime) > new Date());
     return otpIndex !== -1;
 };
 
@@ -62,7 +62,7 @@ const register = {
                 otp: [temporaryOTP]
             });
             
-            const savedUser = await newUser.save();
+            await newUser.save();
             res.status(201).json({ message: 'User information submitted successfully' });
         } catch (error) {
             res.status(500).json({ error: 'Internal Server Error' });
