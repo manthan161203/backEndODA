@@ -3,7 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const sendOTPViaSMS = require('../services/otpTwilio');
-const sendOTPViaEmail = require('../services/otpNodeEmail');
+const sendOTPViaEmail = require('../services/otpNodeMailer');
 
 // Function to generate OTP
 const generateOTP = () => {
@@ -14,7 +14,7 @@ const generateOTP = () => {
 // Function to add OTP to user's list
 const addOTPToList = async (userName, otp) => {
     try {
-        const user = await User.findOne(userName);
+        const user = await User.findOne({userName});
         if (!user) {
             throw new Error('User not found');
         }
