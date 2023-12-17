@@ -73,27 +73,45 @@ const register = {
         try {
             const { phoneNumber, otpCode } = req.body;
             const user = await User.findOne({ phoneNumber });
-
+    
             if (!user) {
                 return res.status(404).json({ error: 'User not found with the provided phone number' });
             }
-
+    
+            // Check if the user has an "invalidOTPAttempts" field, initialize it if not present
+            user.invalidOTPAttempts = user.invalidOTPAttempts || 0;
+    
             const isOTPVerified = verifyOTP(user, otpCode);
-
+    
             if (!isOTPVerified) {
-                await User.deleteOne({ phoneNumber });
+                // Increase the invalidOTPAttempts count
+                user.invalidOTPAttempts++;
+    
+                if (user.invalidOTPAttempts >= 3) {
+                    // Delete the user if there are 3 or more invalid attempts
+                    await User.deleteOne({ phoneNumber });
+                    return res.status(401).json({ error: 'Too many invalid OTP attempts, user deleted' });
+                }
+    
+                // Save the updated user document
+                await user.save();
+    
                 return res.status(401).json({ error: 'Invalid OTP or OTP expired' });
             }
-
+    
+            // Reset the invalidOTPAttempts count on successful OTP verification
+            user.invalidOTPAttempts = 0;
+    
             // Save the user to the database now that the OTP is verified
-            // await user.save();
-
+            await user.save();
+    
             res.status(201).json({ message: 'User registered successfully' });
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Internal Server Error' });
         }
-    },
+    }
+    
 };
 
 module.exports = register;
