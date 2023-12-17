@@ -1,25 +1,26 @@
 const nodemailer = require('nodemailer');
+const dotenv = require('dotenv');
+
+dotenv.config()
 
 const sendOTPViaEmail = async (to, subject, text) => {
   try {
-    // Create a transporter using SMTP
+
     const transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        user: 'your-email@gmail.com', // Your Gmail email address
-        pass: 'your-gmail-password' // Your Gmail password
+        user: process.env.MAIL_FOR_OTP,
+        pass: process.env.PASS_FOR_OTP
       }
     });
 
-    // Setup email data
     const mailOptions = {
-      from: 'your-email@gmail.com', // Sender address
-      to, // Receiver address
-      subject, // Subject
-      text // Text body
+      from: process.env.MAIL_FOR_OTP,
+      to,
+      subject,
+      text
     };
-
-    // Send email
+    
     const info = await transporter.sendMail(mailOptions);
     console.log('Email sent: ', info.messageId);
 
