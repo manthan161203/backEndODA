@@ -1,6 +1,5 @@
 const User = require('../models/userSchema');
 const crypto = require('crypto');
-const sendOTPViaEmail = require('../services/otpNodeMailer');
 const sendOTPViaSMS = require('../services/otpTwilio');
 
 // Function to generate OTP
@@ -10,13 +9,12 @@ const generateOTP = () => {
 };
 
 const verifyOTP = (user, otpCode) => {
-    const otpIndex = user.otp.findIndex(otp => otp.code === otpCode && new Date(otp.expiryTime) > new Date());
+    const otpIndex = user.otpList.findIndex(otp => otp.code === otpCode && new Date(otp.expiryTime) > new Date());
     return otpIndex !== -1;
 };
 
 const register = {
-    async register(req, res) {
-        // const sendMethod = req.params.sendMethod;
+    async submitInfo(req, res) {
         try {
             const {
                 userId,
@@ -46,11 +44,9 @@ const register = {
             if (existingPhoneNumberUser) {
                 return res.status(400).json({ error: 'User already exists with the provided phone number' });
             }
-            
-            otp = generateOTP();
+            const otp = generateOTP();
             await sendOTPViaSMS(phoneNumber, otp);
             const temporaryOTP = { code: otp, expiryTime: new Date(Date.now() + 600000).toISOString() };
-            const isVerificationSuccessful = false;
             const newUser = new User({
                 userId,
                 firstName,
@@ -65,17 +61,36 @@ const register = {
                 role,
                 otp: [temporaryOTP]
             });
-
-            // isVerificationSuccessful = verifyOTP(newUser, otp);
-
-            if (isVerificationSuccessful) {
-                
-                const savedUser = await newUser.save();
-                res.status(201).json({ message: 'User registered successfully' });
-            } else {
-                return res.status(400).json({ error: 'Verification failed' });
-            }
+            
+            const savedUser = await newUser.save();
+            res.status(201).json({ message: 'User information submitted successfully' });
         } catch (error) {
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    },
+
+    async verifyAndRegister(req, res) {
+        try {
+            const { phoneNumber, otpCode } = req.body;
+            const user = await User.findOne({ phoneNumber });
+
+            if (!user) {
+                return res.status(404).json({ error: 'User not found with the provided phone number' });
+            }
+
+            const isOTPVerified = verifyOTP(user, otpCode);
+
+            if (!isOTPVerified) {
+                await User.deleteOne({ phoneNumber });
+                return res.status(401).json({ error: 'Invalid OTP or OTP expired' });
+            }
+
+            // Save the user to the database now that the OTP is verified
+            // await user.save();
+
+            res.status(201).json({ message: 'User registered successfully' });
+        } catch (error) {
+            console.error(error);
             res.status(500).json({ error: 'Internal Server Error' });
         }
     },
