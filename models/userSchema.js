@@ -59,6 +59,10 @@ const userSchema = new mongoose.Schema({
             type: String,
         }
     }],
+    invalidOTPAttempts: {
+        type: String,
+        default: "0"
+    },
     image: {
         type: String,
         required: false
