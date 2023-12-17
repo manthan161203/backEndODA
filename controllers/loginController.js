@@ -24,6 +24,52 @@ const addOTPToList = async (userName, otp) => {
     }
 };
 
+// Add OTP by userId route handler
+const addOTPByUserId = async (req, res) => {
+    const userId = req.params.userId;
+
+    try {
+        const otp = generateOTP();
+        await addOTPToList(userId, otp);
+
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const phoneNumber = user.phoneNumber;
+        await sendOTPviaSMS(phoneNumber, otp);
+
+        res.status(200).json({ message: 'OTP added to the user\'s list and sent via SMS successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to add OTP to the user\'s list or send via SMS' });
+    }
+};
+
+// Add OTP by userName route handler
+const addOTPByUserName = async (req, res) => {
+    const userName = req.params.userName;
+
+    try {
+        const otp = generateOTP();
+        await addOTPToList(userName, otp);
+
+        const user = await User.findOne({ userName });
+        if (!user) {
+            return res.status(404).json({ message: 'User not found' });
+        }
+
+        const phoneNumber = user.phoneNumber;
+        await sendOTPviaSMS(phoneNumber, otp);
+
+        res.status(200).json({ message: 'OTP added to the user\'s list and sent via SMS successfully' });
+    } catch (error) {
+        console.error(error);
+        res.status(500).json({ message: 'Failed to add OTP to the user\'s list or send via SMS' });
+    }
+};
+
 // Login function
 const login = async (req, res) => {
     const { userName, otpCode, password, role } = req.body;
@@ -31,7 +77,6 @@ const login = async (req, res) => {
     try {
         const user = await User.findOne({ userName, role });
 
-        // Handle user not found
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -65,6 +110,8 @@ const login = async (req, res) => {
 
 module.exports = {
     login,
-    addOTPToList,
-    generateOTP
+    addOTPByUserId,
+    addOTPByUserName,
+    generateOTP,
+    addOTPToList
 };
