@@ -17,7 +17,7 @@ const register = {
     async submitInfo(req, res) {
         try {
             const {
-                userId,
+                // userId,
                 firstName,
                 lastName,
                 email,
@@ -48,7 +48,7 @@ const register = {
             await sendOTPViaSMS(phoneNumber, otp);
             const temporaryOTP = { code: otp, expiryTime: new Date(Date.now() + 600000).toISOString() };
             const newUser = new User({
-                userId,
+                // userId,
                 firstName,
                 lastName,
                 email,
