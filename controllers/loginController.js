@@ -85,10 +85,9 @@ const verifyOTPByUserName = async (req, res) => {
         }
 
         // // JWT Token
-        // const secretKey = generateSecretKey();
-        // console.log(yourSecretKey);
-        // const token = jwt.sign({userName: user.userName }, secretKey, { expiresIn: '1h' });
-        // console.log("Token " + token);
+        const secretKey = generateSecretKey();
+        const token = jwt.sign({userName: user.userName }, secretKey, { expiresIn: '1h' });
+        console.log("Token " + token);
 
         user.otp.splice(otpIndex, 1);
         await user.save();
