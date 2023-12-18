@@ -79,8 +79,8 @@ const verifyOTPByUserName = async (req, res) => {
         }
 
         // Verify Password
-        // const isPasswordValid = await bcrypt.compare(enteredPassword, user.password);
-        if (enteredPassword == user.password) {
+        const isPasswordValid = await bcrypt.compare(enteredPassword, user.password);
+        if (!isPasswordValid) {
             return res.status(401).json({ message: 'Invalid password' });
         }
 
