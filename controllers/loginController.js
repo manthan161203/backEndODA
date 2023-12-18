@@ -79,16 +79,15 @@ const verifyOTPByUserName = async (req, res) => {
         }
 
         // Verify Password
-        // const isPasswordValid = await bcrypt.compare(enteredPassword, user.password);
-        if (enteredPassword == user.password) {
+        const isPasswordValid = await bcrypt.compare(enteredPassword, user.password);
+        if (!isPasswordValid) {
             return res.status(401).json({ message: 'Invalid password' });
         }
 
         // // JWT Token
-        // const secretKey = generateSecretKey();
-        // console.log(yourSecretKey);
-        // const token = jwt.sign({userName: user.userName }, secretKey, { expiresIn: '1h' });
-        // console.log("Token " + token);
+        const secretKey = generateSecretKey();
+        const token = jwt.sign({userName: user.userName }, secretKey, { expiresIn: '1h' });
+        console.log("Token " + token);
 
         user.otp.splice(otpIndex, 1);
         await user.save();
