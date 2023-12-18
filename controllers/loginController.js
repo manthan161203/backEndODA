@@ -11,6 +11,11 @@ const generateOTP = () => {
     return otp;
 };
 
+// Function to generate a secure secret key
+const generateSecretKey = () => {
+    return crypto.randomBytes(32).toString('hex');
+};
+
 // Function to add OTP to user's list
 const addOTPToList = async (userName, otp) => {
     try {
@@ -74,10 +79,16 @@ const verifyOTPByUserName = async (req, res) => {
         }
 
         // Verify Password
-        const isPasswordValid = await bcrypt.compare(enteredPassword, user.password);
-        if (!isPasswordValid) {
+        // const isPasswordValid = await bcrypt.compare(enteredPassword, user.password);
+        if (enteredPassword == user.password) {
             return res.status(401).json({ message: 'Invalid password' });
         }
+
+        // // JWT Token
+        // const secretKey = generateSecretKey();
+        // console.log(yourSecretKey);
+        // const token = jwt.sign({userName: user.userName }, secretKey, { expiresIn: '1h' });
+        // console.log("Token " + token);
 
         user.otp.splice(otpIndex, 1);
         await user.save();
