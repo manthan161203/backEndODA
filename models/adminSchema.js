@@ -7,11 +7,6 @@ const adminSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    role: {
-        type: String,
-        enum: ['admin'],
-        required: true
-    },
     assignedDepartments: [{
         type: String
     }],
