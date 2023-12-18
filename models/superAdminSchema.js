@@ -7,11 +7,6 @@ const superAdminSchema = new mongoose.Schema({
         required: true,
         unique: true
     },
-    role: {
-        type: String,
-        enum: ['superAdmin'],
-        required: true
-    },
 }, { timestamps: true });
 
 const SuperAdmin = mongoose.model('SuperAdmin', superAdminSchema);
