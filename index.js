@@ -5,12 +5,15 @@ const loginRouter = require('./routers/loginRouter');
 const registerRouter = require('./routers/registerRouter');
 
 const app = express();
-
+const bodyParser = require('body-parser')
 // Middleware
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+// app.use(express.json());
+// app.use(express.urlencoded({ extended: true }));
 app.use(cors());
-
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
 // Connect to MongoDB
 connectDB();
 
