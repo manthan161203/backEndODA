@@ -1,19 +1,18 @@
 const express = require('express');
-const { PORT, connectDB } = require('./config/database');
 const cors = require('cors');
+const fileUpload = require('express-fileupload');
+const app = express();
+
+const { PORT, connectDB } = require('./config/database');
+
 const loginRouter = require('./routers/loginRouter');
 const registerRouter = require('./routers/registerRouter');
 
-const app = express();
-const bodyParser = require('body-parser')
-// Middleware
-// app.use(express.json());
-// app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+app.use(express.urlencoded())
 app.use(cors());
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({
-    extended: true
-}));
+app.use(fileUpload());
+
 // Connect to MongoDB
 connectDB();
 
