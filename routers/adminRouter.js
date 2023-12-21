@@ -1,11 +1,14 @@
 const express = require('express');
-const adminRouter = express.Router();
+const router = express.Router();
 const adminController = require('../controllers/adminController');
 
-// Route to get all users (admin-only functionality)
-adminRouter.get('/users', adminController.getAllUsers);
+router.get('/getAllDoctors', adminController.getDoctors);
+router.get('/getDoctor/:username', adminController.getDoctorByUserName);
+router.patch('/updateDoctor/:username', adminController.updateDoctorByUsername);
+router.delete('/doctors/:username', adminController.deleteDoctorByUsername);
+router.get('/hospitals', adminController.getHospital);
+router.post('/hospitals', adminController.createHospital);
+router.patch('/hospitals/:hospitalId', adminController.updateHospitalById);
+router.delete('/hospitals/:hospitalId', adminController.deleteHospitalById);
 
-// Other admin routes using adminController functions...
-// Example: adminRouter.post('/createUser', adminController.createUser);
-
-module.exports = adminRouter;
+module.exports = router;

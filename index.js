@@ -21,7 +21,7 @@ connectDB(); // Assuming the connectDB function is defined in the database confi
 // Routes
 app.use('/login', loginRouter);
 app.use('/register', registerRouter);
-app.use('/admin', adminRouter); // Mount the adminRouter at '/admin' path
+app.use('/admin', adminRouter);
 
 // Start the server
 app.listen(PORT, () => {
