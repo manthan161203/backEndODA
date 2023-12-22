@@ -24,13 +24,19 @@ const adminController = {
     // Get Doctor by UserName
     getDoctorByUserName: async (req, res) => {
         try {
-            const { userName } = req.params;
-            const doctor = await UnifiedDoctor.findOne({ 'user.userName': userName }).populate('user');
-
+            const { userName } = req.body; // Destructure userName from req.params
+    
+            if (!userName) {
+                return res.status(400).json({ error: 'Username parameter is missing' });
+            }
+    
+            // Use findOne to find a doctor by userName
+            const doctor = await UnifiedDoctor.findOne({ 'user.userName': userName });
+    
             if (!doctor) {
                 return res.status(404).json({ error: 'Doctor not found' });
             }
-            console.log(doctor.user.email);
+            
             res.status(200).json(doctor);
         } catch (error) {
             console.error(error);
@@ -41,17 +47,36 @@ const adminController = {
     // Get hospital by hospitalId and hospitalName
     getHospital: async (req, res) => {
         try {
-            const { hospitalId, hospitalName } = req.query;
+            const { hospitalId, hospitalName } = req.body;
+
+            if (hospitalId && hospitalName) {
+                const hospitals = await Hospital.find({ hospitalId, hospitalName });
+                if (hospitals.length === 0) {
+                    return res.status(404).json({ error: 'No hospitals found with the provided details' });
+                }
+                return res.status(200).json(hospitals);
+            }
+
             const query = {};
 
-            if (hospitalId) query.hospitalId = hospitalId;
-            if (hospitalName) query.hospitalName = hospitalName;
+            if (!hospitalId && !hospitalName) {
+                const hospitals = await Hospital.find();
+                return res.status(200).json(hospitals);
+            }
+
+            if (hospitalId) {
+                query.hospitalId = hospitalId;
+            }
+
+            if (hospitalName) {
+                query.hospitalName = hospitalName;
+            }
 
             const hospital = await Hospital.find(query);
             res.status(200).json(hospital);
         } catch (error) {
             console.error(error);
-            res.status(500).json({ error: "Internal Server Error" });
+            res.status(500).json({ error: 'Internal Server Error' });
         }
     },
 
@@ -79,7 +104,7 @@ const adminController = {
                 updatedUserData,
                 { new: true }
             );
-    
+
             if (!updatedUser) {
                 return res.status(404).json({ error: 'User not found' });
             }
@@ -91,23 +116,30 @@ const adminController = {
         }
     },
 
-
     // Delete a doctor by UserName
-    deleteDoctorByUsername: async (req, res) => {
+    deleteDoctorByUsername : async (req, res) => {
         try {
-            const { username } = req.params;
-            const doctor = await UnifiedDoctor.findOneAndDelete({ 'user.userName': username });
+            const userName = req.body.username; // Extract the username from the request body
+            
+            const doctor = await UnifiedDoctor.findOne({ 'admin.userName' : userName }).populate('admin').exec();
+            console.log(doctor);
 
-            if (!doctor) {
-                return res.status(404).json({ error: 'Doctor not found' });
+            // Delete the corresponding doctor from UnifiedDoctor schema
+            const deletedDoctor = await UnifiedDoctor.findOneAndDelete({ 'user.userName': userName }).populate('user');
+        
+            if (!deletedDoctor) {
+                console.log(`Doctor or User with username ${userName} not found.`);
+                return res.status(404).json({ error: 'Doctor or User not found' });
             }
-
-            res.status(204).json();
+        
+            res.status(204).json({ message: 'Doctor and User have been deleted' });
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Internal Server Error' });
         }
     },
+    
+    
 
     // Create Hospital
     createHospital: async (req, res) => {

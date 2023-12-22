@@ -1,4 +1,5 @@
 const mongoose = require('mongoose');
+const User = require('./userSchema');
 
 const adminSchema = new mongoose.Schema({
     user: {
