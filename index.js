@@ -1,5 +1,4 @@
 const express = require('express');
-const cors = require('cors');
 const fileUpload = require('express-fileupload');
 const { PORT, connectDB } = require('./config/database');
 
@@ -15,17 +14,25 @@ const loginRouter = require('./routers/loginRouter');
 const registerRouter = require('./routers/registerRouter');
 const adminRouter = require('./routers/adminRouter');
 
-const app = express();
-
-app.use(express.json());
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
-
-app.use(cors());
-// app.use(fileUpload());
-
-// Connect to MongoDB
 connectDB();
 
+const app = express();
+const bodyParser = require('body-parser')
+// Middleware
+
+const cors = require('cors');
+app.set('view engine', 'pug');
+app.use(express.json());
+app.use(fileUpload());
+app.use(express.static('public'));
+
+// app.use(express.urlencoded({ extended: true }));
+app.use(cors());
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
+// Connect
 // Routes
 app.use('/login', loginRouter);
 app.use('/register', registerRouter);
