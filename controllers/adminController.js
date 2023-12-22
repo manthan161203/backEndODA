@@ -7,13 +7,13 @@ const adminController = {
     getDoctors: async (req, res) => {
         try {
             const { doctorType, specialization, hospitalId } = req.body;
+            console.log(req.body)
             const query = {};
-
             if (doctorType) query.doctorType = doctorType;
             if (specialization) query.doctorSpecialization = specialization;
-            if (hospitalId) query.hospitalId = hospitalId;
-
-            const doctors = await UnifiedDoctor.find(query).populate('user');
+            if (hospitalId) query.hospitalID = hospitalId;
+            console.log(query)
+            const doctors = await UnifiedDoctor.find(query).populate({path:'hospitalID'}).populate({path:'user',});
             res.status(200).json(doctors);
         } catch (error) {
             console.error(error);
@@ -24,19 +24,32 @@ const adminController = {
     // Get Doctor by UserName
     getDoctorByUserName: async (req, res) => {
         try {
-            const { userName } = req.body; // Destructure userName from req.params
-    
-            if (!userName) {
+            const { username } = req.params; // Destructure userName from req.params
+
+            if (!username) {
                 return res.status(400).json({ error: 'Username parameter is missing' });
             }
-    
-            // Use findOne to find a doctor by userName
-            const doctor = await UnifiedDoctor.findOne({ 'user.userName': userName });
-    
-            if (!doctor) {
-                return res.status(404).json({ error: 'Doctor not found' });
-            }
-            
+
+            const doctor = await UnifiedDoctor.aggregate([
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'user',
+                        foreignField: '_id',
+                        as: 'user'
+                    }
+                },
+                {
+                    $match: {
+                        'user.userName': username
+                    }
+                },
+                {
+                    $limit: 1 // Limiting to one result, assuming unique usernames
+                }
+            ]);
+
+
             res.status(200).json(doctor);
         } catch (error) {
             console.error(error);
@@ -117,29 +130,29 @@ const adminController = {
     },
 
     // Delete a doctor by UserName
-    deleteDoctorByUsername : async (req, res) => {
+    deleteDoctorByUsername: async (req, res) => {
         try {
             const userName = req.body.username; // Extract the username from the request body
-            
-            const doctor = await UnifiedDoctor.findOne({ 'admin.userName' : userName }).populate('admin').exec();
+
+            const doctor = await UnifiedDoctor.findOne({ 'admin.userName': userName }).populate('admin').exec();
             console.log(doctor);
 
             // Delete the corresponding doctor from UnifiedDoctor schema
             const deletedDoctor = await UnifiedDoctor.findOneAndDelete({ 'user.userName': userName }).populate('user');
-        
+
             if (!deletedDoctor) {
                 console.log(`Doctor or User with username ${userName} not found.`);
                 return res.status(404).json({ error: 'Doctor or User not found' });
             }
-        
+
             res.status(204).json({ message: 'Doctor and User have been deleted' });
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Internal Server Error' });
         }
     },
-    
-    
+
+
 
     // Create Hospital
     createHospital: async (req, res) => {

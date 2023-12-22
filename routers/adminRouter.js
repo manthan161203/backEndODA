@@ -2,8 +2,8 @@ const express = require('express');
 const router = express.Router();
 const adminController = require('../controllers/adminController');
 
-router.get('/getAllDoctors', adminController.getDoctors);
-router.get('/getDoctor', adminController.getDoctorByUserName);
+router.post('/getAllDoctors', adminController.getDoctors);
+router.get('/getDoctor/:username', adminController.getDoctorByUserName);
 router.get('/getHospital', adminController.getHospital);
 router.delete('/deleteDoctor', adminController.deleteDoctorByUsername);
 router.patch('/updateDoctor/:username', adminController.updateDoctorByUsername);
