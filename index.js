@@ -13,6 +13,7 @@ const Hospital = require('./models/hospitalSchema');
 const loginRouter = require('./routers/loginRouter');
 const registerRouter = require('./routers/registerRouter');
 const adminRouter = require('./routers/adminRouter');
+const superAdminRouter = require('./routers/superAdminRouter');
 
 connectDB();
 
@@ -37,6 +38,7 @@ app.use(bodyParser.urlencoded({
 app.use('/login', loginRouter);
 app.use('/register', registerRouter);
 app.use('/admin', adminRouter);
+app.use('/superAdmin', superAdminRouter);
 
 // Start the server
 app.listen(PORT, () => {
