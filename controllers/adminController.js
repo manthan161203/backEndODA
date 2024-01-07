@@ -29,13 +29,43 @@ const adminController = {
         try {
             const { hospitalID } = req.body;
     
-            const hospital = await Hospital.findOne({ hospitalId: hospitalID });
+            const doctors = await UnifiedDoctor.aggregate([
+                {
+                    $lookup: {
+                        from: 'hospitals',
+                        localField: 'hospitalID',
+                        foreignField: '_id',
+                        as: 'hospitalDetails'
+                    }
+                },
+                {
+                    $unwind: '$hospitalDetails'
+                },
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'user',
+                        foreignField: '_id',
+                        as: 'user'
+                    }
+                },
+                {
+                    $unwind: '$user'
+                },
+                {
+                    $match: {
+                        'hospitalDetails.hospitalId': hospitalID ,
+                    }
+                }
+            ]);
+
+            // const hospital = await Hospital.findOne({ hospitalId: hospitalID });
                 
-            if (!hospital) {
-                return res.status(404).json({ error: 'Hospital not found' });
-            }
+            // if (!hospital) {
+            //     return res.status(404).json({ error: 'Hospital not found' });
+            // }
     
-            const doctors = await UnifiedDoctor.find({ hospitalID: hospital._id }).populate('user').populate('hospitalID');
+            // const doctors = await UnifiedDoctor.find({ hospitalID: hospital._id }).populate('user').populate('hospitalID');
             res.status(200).json(doctors);
         } catch (error) {
             console.error(error);
@@ -63,10 +93,7 @@ const adminController = {
                 },
                 {
                     $match: {
-                        $and: [
-                            { 'userDetails.userName': username },
-                            { 'user': { $ne: null } } // Ensures doctor has associated user
-                        ]
+                        'userDetails.userName': username ,
                     }
                 }
             ]);
@@ -82,39 +109,69 @@ const adminController = {
         }
     },
 
-    // Update Doctor by UserName
-    updateDoctorByUsername: async (req, res) => {
+    // Update user data of Doctor by userName
+    updateUserDataOfDoctorByUserName: async (req, res) => {
         try {
             const { userName } = req.params;
-            const updatedUserData = req.body.updatedUserData;
-            const updatedDoctorData = req.body.updatedDoctorData;
-
-            // Find the doctor by username and update the data
-            const doctor = await UnifiedDoctor.findOneAndUpdate(
-                { 'user.userName': userName },
-                updatedDoctorData,
-                { new: true }
-            ).populate('user');
-
-            console.log(doctor);
-            if (!doctor) {
-                return res.status(404).json({ error: 'Doctor not found' });
-            }
+            const updatedData = req.body;
 
             const updatedUser = await User.findOneAndUpdate(
                 { userName: userName },
-                updatedUserData,
+                { $set: updatedData },
                 { new: true }
             );
 
             if (!updatedUser) {
-                return res.status(404).json({ error: 'User not found' });
+                return res.status(404).json({ message: 'User not found' });
             }
 
-            res.status(200).json(doctor);
-        } catch (error) {
-            console.error(error);
-            res.status(500).json({ error: 'Internal Server Error' });
+            return res.status(200).json(updatedUser);
+        } catch (err) {
+            return res.status(500).json({ message: err.message });
+        }
+    },
+
+    // Update Doctor details by userName
+    updateDoctorDataByUserName: async (req, res) => {
+        try {
+            const { userName } = req.params;
+            const updatedData = req.body;
+            await UnifiedDoctor.aggregate([
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'user',
+                        foreignField: '_id',
+                        as: 'userData'
+                    }
+                },
+                {
+                    $match: {
+                        'userData.userName': userName
+                    }
+                },
+                {
+                    $unwind: '$userData'
+                },
+                {
+                    $set: updatedData
+                },
+                {
+                    $project: {
+                        userData: 0,
+                    }
+                },
+                {
+                    $merge: {
+                        into: 'unifieddoctors',
+                        whenMatched: 'merge'
+                    }
+                }
+            ]);
+    
+            return res.status(200).json({ message: 'Doctor Updated Successfully' });
+        } catch (err) {
+            return res.status(500).json({ message: err.message });
         }
     },
 
@@ -166,17 +223,6 @@ const adminController = {
         }
     },
     
-    
-    
-    
-
-
-
-
-
-
-
-
     // Create Hospital
     createHospital: async (req, res) => {
         try {
@@ -258,7 +304,9 @@ const adminController = {
     updateHospitalById: async (req, res) => {
         try {
             const { hospitalId } = req.params;
-            const hospital = await Hospital.findByIdAndUpdate({ "hospitalId": hospitalId }, req.body, { new: true });
+            const hospitalData = req.body;
+            console.log(hospitalData);
+            const hospital = await Hospital.findOneAndUpdate({ "hospitalId": hospitalId }, hospitalData, { new: true });
 
             if (!hospital) {
                 return res.status(404).json({ error: 'Hospital not found' });
@@ -287,9 +335,6 @@ const adminController = {
             res.status(500).json({ error: 'Internal Server Error' });
         }
     },
-    
-    
-
 };
 
 module.exports = adminController;
