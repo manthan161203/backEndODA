@@ -40,7 +40,7 @@ const adminController = {
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Error retrieving doctors by Hospital ID' });
-        }
+        }   
     },
     
     // Get Doctor by UserName
@@ -121,9 +121,10 @@ const adminController = {
     // Delete a doctor by UserName
     deleteDoctorByUsername: async (req, res) => {
         try {
-            const { username } = req.body; // Extract the username from the request body
-    
-            const doctor = await UnifiedDoctor.aggregate([
+            const { username } = req.params;
+            console.log(username)
+            // Find associated doctor(s) IDs based on the provided username using aggregation
+            const doctorIDs = await UnifiedDoctor.aggregate([
                 {
                     $lookup: {
                         from: 'users',
@@ -134,30 +135,39 @@ const adminController = {
                 },
                 {
                     $match: {
-                        $or: [
-                            { 'userDetails.userName': username },
-                            { 'admin.userName': username }
-                        ]
+                        'userDetails.userName': username
+                    }
+                },
+                {
+                    $project: {
+                        _id: 1 // Retrieve only the IDs of associated doctors
                     }
                 }
             ]);
     
-            if (doctor.length === 0) {
-                console.log(`Doctor or User with username ${username} not found.`);
-                return res.status(404).json({ error: 'Doctor or User not found' });
+            if (doctorIDs.length === 0) {
+                console.log(`No doctors associated with username ${username}.`);
+                return res.status(404).json({ error: 'No doctors found' });
             }
-    
-            const userIDsToDelete = doctor.map(doc => doc.user); // Assuming 'user' is the user reference field in UnifiedDoctor
-    
-            // Delete the corresponding doctor(s) from UnifiedDoctor schema
-            await UnifiedDoctor.deleteMany({ user: { $in: userIDsToDelete } });
-    
-            res.status(204).json({ message: 'Doctor(s) and associated User(s) have been deleted' });
+            
+            const { _id } = doctorIDs[0];
+
+            // Delete associated doctor(s) using the retrieved IDs
+            const deletionResult = await UnifiedDoctor.deleteOne({ _id });
+            const deleteUser = await User.deleteOne({userName: username});
+            
+            if(deletionResult.deletedCount === 0 && !deleteUser){
+                return res.status(404).json({ message: 'Doctor not found'});
+            }
+            res.status(201).json({ message: 'User and associated Doctor(s) have been deleted' });
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: 'Internal Server Error' });
         }
     },
+    
+    
+    
     
 
 
