@@ -5,8 +5,8 @@ const adminController = require('../controllers/adminController');
 router.post('/getAllDoctors', adminController.getDoctors);
 router.post('/getDoctorsByHospitalID', adminController.getDoctorsByHospitalID); // half
 router.get('/getDoctor/:username', adminController.getDoctorByUserName);
+router.delete('/deleteDoctor/:username', adminController.deleteDoctorByUsername);
 
-router.delete('/deleteDoctor', adminController.deleteDoctorByUsername);
 router.patch('/updateDoctor/:username', adminController.updateDoctorByUsername);
 router.patch('/hospitals/:hospitalId', adminController.updateHospitalById);
 
