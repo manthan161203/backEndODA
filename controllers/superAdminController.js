@@ -68,64 +68,86 @@ const superAdminController = {
     // createAdmin: async (req, res) => {
     //     try {
     //         const { user, assignedDepartments } = req.body;
-    //         const admin = await Admin.create({ user, assignedDepartments });
+    //         const userData = await User.create({ user });
 
+    //         const admin = await Admin.create({ assignedDepartments });
+    //         console.log(userData);
     //         return res.status(201).json(admin);
     //     } catch (err) {
     //         return res.status(500).json({ message: err.message });
     //     }
     // },
 
+    // Update user data of Admin by userName
+    updateUserDataOfAdminByUserName: async (req, res) => {
+        try {
+            const { userName } = req.params;
+            const updatedData = req.body;
+
+            const updatedUser = await User.findOneAndUpdate(
+                { userName: userName },
+                { $set: updatedData },
+                { new: true }
+            );
+
+            if (!updatedUser) {
+                return res.status(404).json({ message: 'User not found' });
+            }
+
+            return res.status(200).json(updatedUser);
+        } catch (err) {
+            return res.status(500).json({ message: err.message });
+        }
+    },
+
     // Update admin details by userName
-    // updateAdminByUserName: async (req, res) => {
-    //     try {
-    //         const { userName } = req.params;
-    //         const { assignedDepartments } = req.body;
-
-    //         const updatedAdmin = await Admin.aggregate([
-    //             {
-    //                 $lookup: {
-    //                     from: 'users',
-    //                     localField: 'user',
-    //                     foreignField: '_id',
-    //                     as: 'user'
-    //                 }
-    //             },
-    //             {
-    //                 $unwind: '$user'
-    //             },
-    //             {
-    //                 $match: {
-    //                     'user.userName': userName
-    //                 }
-    //             },
-    //             {
-    //                 $set: {
-    //                     assignedDepartments: assignedDepartments
-    //                 }
-    //             },
-    //             {
-    //                 $merge: {
-    //                     into: 'admins',
-    //                     whenMatched: 'replace',
-    //                 }
-    //             }
-    //         ]);
-
-    //         if (!updatedAdmin) {
-    //             return res.status(404).json({ message: 'Admin not found' });
-    //         }
-
-    //         return res.status(200).json(updatedAdmin);
-    //     } catch (err) {
-    //         return res.status(500).json({ message: err.message });
-    //     }
-    // },
+    updateAdminDataByUserName: async (req, res) => {
+        try {
+            const { userName } = req.params;
+            const updatedData = req.body;
+            await Admin.aggregate([
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'user',
+                        foreignField: '_id',
+                        as: 'userData'
+                    }
+                },
+                {
+                    $match: {
+                        'userData.userName': userName
+                    }
+                },
+                {
+                    $set: updatedData
+                },
+                {
+                    $project: {
+                        user: 1,
+                        _id: 1,
+                        assignedDepartments: 1
+                    }
+                },
+                {
+                    $merge: {
+                        into: 'admins',
+                        whenMatched: 'merge'
+                    }
+                }
+            ]);
+    
+            return res.status(200).json({ message: 'Admin Updated Successfully' });
+        } catch (err) {
+            return res.status(500).json({ message: err.message });
+        }
+    },
 
     // Delete an admin by userName
     deleteAdminByUserName: async (req, res) => {
         try {
             const { userName } = req.params;
+            console.log(userName);
             const deletedAdmin = await Admin.aggregate([
                 {
                     $lookup: {
@@ -136,45 +158,26 @@ const superAdminController = {
                     }
                 },
                 {
-                    $unwind: '$userDetails'
-                },
-                {
                     $match: {
                         'userDetails.userName': userName
                     }
                 },
                 {
                     $project: {
-                        userDetails: 0
+                        user: 1,
+                        _id: 1
                     }
-                },
-                {
-                    $facet: {
-                        toDelete: [
-                            {
-                                $match: {
-                                    user: { $exists: true }
-                                }
-                            }
-                        ]
-                    }
-                },
-                {
-                    $unwind: {
-                        path: '$toDelete',
-                        preserveNullAndEmptyArrays: true
-                    }
-                },
-                {
-                    $replaceRoot: { newRoot: '$toDelete' }
                 }
             ]);
-            if (!deletedAdmin) {
+            // console.log(deletedAdmin);
+            const { user, _id } = deletedAdmin[0];
+
+            const deletionResult = await Admin.deleteOne({ user, _id });
+            const deletedUser = await User.deleteOne({ userName: userName });
+
+            if (deletionResult.deletedCount === 0 && !deletedUser) {
                 return res.status(404).json({ message: 'Admin not found' });
             }
-            const adminIdsToDelete = deletedAdmin.map(admin => admin._id);
-
-            await Admin.deleteMany({ _id: { $in: adminIdsToDelete } });
 
             return res.status(200).json({ message: 'Admin deleted successfully' });
         } catch (err) {
