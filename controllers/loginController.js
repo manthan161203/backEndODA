@@ -7,7 +7,7 @@ const sendOTPViaEmail = require('../services/otpNodeMailer');
 
 // Function to generate OTP
 const generateOTP = () => {
-    const otp = crypto.randomBytes(3).toString('hex').toUpperCase(); // Generate a 6-letter OTP
+    const otp = crypto.randomBytes(3).toString('hex').toUpperCase();
     return otp;
 };
 
@@ -78,13 +78,11 @@ const verifyOTPByUserName = async (req, res) => {
             return res.status(400).json({ message: 'Invalid OTP or OTP expired' });
         }
 
-        // Verify Password
         const isPasswordValid = await bcrypt.compare(enteredPassword, user.password);
         if (!isPasswordValid) {
             return res.status(401).json({ message: 'Invalid password' });
         }
 
-        // // JWT Token
         const secretKey = generateSecretKey();
         const token = jwt.sign({userName: user.userName }, secretKey, { expiresIn: '1h' });
         console.log("Token " + token);
