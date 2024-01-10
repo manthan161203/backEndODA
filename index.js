@@ -14,6 +14,7 @@ const loginRouter = require('./routers/loginRouter');
 const registerRouter = require('./routers/registerRouter');
 const adminRouter = require('./routers/adminRouter');
 const superAdminRouter = require('./routers/superAdminRouter');
+const unifiedDoctorRouter = require('./routers/unifiedDoctorRouter');
 
 connectDB();
 
@@ -22,6 +23,7 @@ const bodyParser = require('body-parser')
 // Middleware
 
 const cors = require('cors');
+const UnifiedDoctor = require('./models/unifiedDoctorSchema');
 app.set('view engine', 'pug');
 app.use(express.json());
 app.use(fileUpload());
@@ -39,6 +41,7 @@ app.use('/login', loginRouter);
 app.use('/register', registerRouter);
 app.use('/admin', adminRouter);
 app.use('/superAdmin', superAdminRouter);
+app.use('/doctor', unifiedDoctorRouter)
 
 // Start the server
 app.listen(PORT, () => {
