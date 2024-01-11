@@ -3,12 +3,12 @@ const Appointments = require('../models/appointmentSchema');
 const Patient = require('../models/patientSchema');
 const UnifiedDoctor = require('../models/unifiedDoctorSchema');
 
-const adminController = {
+const unifiedDoctorController = {
     getAppointmentsByDoctorID: async (req, res) => {
         try {
             const { doctorID } = req.params;
             // console.log(doctorID);
-            const appointments = await Appointments.find({'doctor': doctorID}).populate('patient');
+            const appointments = await Appointments.find({'doctor': doctorID}).populate({path: 'patient', populate: 'user'}).exec();
             // console.log(appointments);
             res.status(200).json(appointments);
         } catch (error) {
@@ -92,4 +92,4 @@ const adminController = {
     }
 };
 
-module.exports = adminController;
+module.exports = unifiedDoctorController;
