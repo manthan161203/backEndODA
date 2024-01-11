@@ -2,6 +2,21 @@ const { response } = require('express');
 const Appointments = require('../models/appointmentSchema');
 const Patient = require('../models/patientSchema');
 const UnifiedDoctor = require('../models/unifiedDoctorSchema');
+const sendOTPViaEmail = require('../services/otpNodeMailer');
+
+const sendEmailNotification = async (appointment) => {
+    try {
+        const toEmail = appointment.patient.user.email;
+        const subject = 'Appointment Status Update';
+        const text = `Your appointment status has been updated to: ${appointment.status}`;
+
+        // Use your existing email sending service
+        await sendOTPViaEmail(toEmail, subject, text);
+    } catch (error) {
+        console.error('Error sending email: ', error);
+        throw new Error('Failed to send email');
+    }
+};
 
 const unifiedDoctorController = {
     getAppointmentsByDoctorID: async (req, res) => {
@@ -26,7 +41,9 @@ const unifiedDoctorController = {
                 { appointmentId: appointmentID },
                 { $set: data },
                 { new: true }
-            );
+            ).populate({path: 'patient', populate: 'user'}).exec();
+
+            await sendEmailNotification(updatedAppointment);
             // res.status(200).json({ message: 'Appointment status updated successfully' });
             res.status(200).json(updatedAppointment);
         } catch (error) {
