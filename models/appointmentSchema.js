@@ -12,7 +12,7 @@ const appointmentSchema = new mongoose.Schema({
     }, 
     doctor: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Doctor',
+        ref: 'UnifiedDoctor',
         required: true
     },
     date: {
@@ -39,7 +39,7 @@ const appointmentSchema = new mongoose.Schema({
     },
     recommendedDoctors: [{
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'Doctor'
+        ref: 'UnifiedDoctor'
     }],
     notes: {
         type: String
