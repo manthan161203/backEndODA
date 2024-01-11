@@ -81,6 +81,14 @@ const unifiedDoctorController = {
                     }
                 },
                 {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'user',
+                        foreignField: '_id',
+                        as: 'user'
+                    }
+                },
+                {
                     $limit: 1
                 }
             ]);
