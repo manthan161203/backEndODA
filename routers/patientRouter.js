@@ -8,5 +8,6 @@ router.get('/getDoctorsBySpecialization/:specialization', doctorController.getDo
 router.get('/getDoctorsByHospital/:hospitalName', doctorController.getDoctorByHospital);
 router.put('/updateUserDataPatient/:userName', patientController.updateUserDataOfPatientByUserName);
 router.put('/updatePatientData/:userName', patientController.updatePatientDataByUserName);
+router.post('/bookAppointment/:emailID', patientController.bookAppointment);
 
 module.exports = router;
