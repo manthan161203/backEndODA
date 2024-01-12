@@ -1,5 +1,20 @@
 const Appointment = require('../models/appointmentSchema')
 const Patient = require('../models/patientSchema')
+const sendOTPViaEmail = require('../services/otpNodeMailer');
+
+const sendEmailNotification = async (email) => {
+    try {
+        const toEmail = email;
+        const subject = 'Appointment Status Update';
+        const text = `Your appointment request is received and is Pending`;
+
+        // Use your existing email sending service
+        await sendOTPViaEmail(toEmail, subject, text);
+    } catch (error) {
+        console.error('Error sending email: ', error);
+        throw new Error('Failed to send email');
+    }
+};
 
 const patientController = {
     getAppointmentsByPatientID: async (req, res) => {
@@ -13,7 +28,7 @@ const patientController = {
         }
     },
 
-    // Update user data of Doctor by userName
+    // Update user data of Patient by userName
     updateUserDataOfPatientByUserName: async (req, res) => {
         try {
             const { userName } = req.params;
@@ -35,7 +50,7 @@ const patientController = {
         }
     },
 
-    // Update Doctor details by userName
+    // Update Patient details by userName
     updatePatientDataByUserName: async (req, res) => {
         try {
             const { userName } = req.params;
@@ -78,6 +93,25 @@ const patientController = {
             return res.status(500).json({ message: err.message });
         }
     },
+
+    // Book an appointment
+    bookAppointment: async (req, res) => {
+        try {
+            const { email } = req.params;
+            const appointmentData = req.body;
+            const appointment =  await Appointment.create(appointmentData);
+            if(appointment){
+                sendEmailNotification(email);
+                res.status(200).json({message:"Appointment request is received"});
+            }
+            else{
+                res.status(200).json({message:"Failed"})
+            }
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ message: "Internal Server Error" });
+        }
+    }
 }
 
 module.exports = patientController;
