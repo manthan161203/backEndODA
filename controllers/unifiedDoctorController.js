@@ -8,7 +8,19 @@ const sendEmailNotification = async (appointment) => {
     try {
         const toEmail = appointment.patient.user.email;
         const subject = 'Appointment Status Update';
-        const text = `Your appointment status has been updated to: ${appointment.status}`;
+        var text;
+        if(appointment.status == 'Accepted') {
+            if(appointment.prerequisites != "") {
+                text = `Your appointment has been Accepted.Prerequisites: ${appointment.prerequisite}`;
+            }
+            else{
+                text = `Your appointment has been Accepted.`;
+            }
+        } else if(appointment.status == 'Pending') {
+            text = `Your appointment request is received and is Pending`;
+        } else{
+            text = `Sorry, but your appointment is Rejected.Recommended Doctors: ${appointment.recommendedDoctors}`;
+        }
 
         // Use your existing email sending service
         await sendOTPViaEmail(toEmail, subject, text);
