@@ -97,11 +97,11 @@ const patientController = {
     // Book an appointment
     bookAppointment: async (req, res) => {
         try {
-            const { email } = req.params;
+            const { emailID } = req.params;
             const appointmentData = req.body;
             const appointment =  await Appointment.create(appointmentData);
             if(appointment){
-                sendEmailNotification(email);
+                sendEmailNotification(emailID);
                 res.status(200).json({message:"Appointment request is received"});
             }
             else{
