@@ -10,5 +10,6 @@ router.put('/appointmentAorD/:appointmentID', doctorController.updateAppointment
 router.get('/getPatientInfo/:patientID', doctorController.getPatientInfo);
 router.get('/getDoctorsBySpecialization/:specialization', doctorController.getDoctorBySpecialization);
 router.get('/getDoctorsByHospital/:hospitalName', doctorController.getDoctorByHospital);
+router.get('/getDoctorsByType/:doctorType', doctorController.getDoctorByType);
 
 module.exports = router;
