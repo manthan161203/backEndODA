@@ -64,6 +64,10 @@ const unifiedDoctorSchema = new mongoose.Schema({
             ]
         }
     ],
+    fee: {
+        type: String,
+        require: true
+    },
     assignedDepartments: [
         {
             type: String
