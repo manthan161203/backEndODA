@@ -31,6 +31,10 @@ const hospitalSchema = new mongoose.Schema({
             default: true
         }
     }],
+    image: {
+        type: String,
+        required: false
+    },
 }, { timestamps: true });
 
 const Hospital = mongoose.model('Hospital', hospitalSchema);
