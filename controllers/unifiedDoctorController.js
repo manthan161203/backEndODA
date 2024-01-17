@@ -130,9 +130,6 @@ const unifiedDoctorController = {
                         as: 'user'
                     }
                 },
-                {
-                    $limit: 1
-                }
             ]);
             res.status(200).json(doctors);
         } catch (error) {
