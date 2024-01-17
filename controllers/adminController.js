@@ -300,6 +300,17 @@ const adminController = {
         }
     },
 
+    // Get all hospitals
+    getAllHospital: async (req, res) => {
+        try {
+            const hospitals = await Hospital.find();
+            return res.status(200).json(hospitals);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: 'Internal Server Error' });
+        }
+    },
+
     // Update Hospital by HospitalId
     updateHospitalById: async (req, res) => {
         try {

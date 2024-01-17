@@ -11,6 +11,7 @@ router.put('/updateDoctorData/:userName', adminController.updateDoctorDataByUser
 router.put('/updateHospital/:hospitalId', adminController.updateHospitalById);
 router.post('/createHospital', adminController.createHospital);
 router.post('/getHospital', adminController.getHospital);
+router.get('/getAllHospital', adminController.getAllHospital);
 router.delete('/deleteHospital/:hospitalId', adminController.deleteHospitalById);
 
 module.exports = router;
