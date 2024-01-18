@@ -16,6 +16,7 @@ const adminRouter = require('./routers/adminRouter');
 const superAdminRouter = require('./routers/superAdminRouter');
 const unifiedDoctorRouter = require('./routers/unifiedDoctorRouter');
 const patientRouter = require('./routers/patientRouter');
+const userRouter = require('./routers/userRouter');
 
 connectDB();
 
@@ -44,6 +45,7 @@ app.use('/admin', adminRouter);
 app.use('/superAdmin', superAdminRouter);
 app.use('/doctor', unifiedDoctorRouter);
 app.use('/patient', patientRouter);
+app.use('/user', userRouter);
 
 // Start the server
 app.listen(PORT, () => {
