@@ -14,7 +14,7 @@ const adminController = {
             if (doctorSpecialization) {
                 query.doctorSpecialization = doctorSpecialization;
             }
-            console.log(query);
+            // console.log(query);
     
             const doctors = await UnifiedDoctor.find(query).populate('user');
             res.status(200).json(doctors);
@@ -179,8 +179,7 @@ const adminController = {
     deleteDoctorByUsername: async (req, res) => {
         try {
             const { username } = req.params;
-            console.log(username)
-            // Find associated doctor(s) IDs based on the provided username using aggregation
+            // console.log(username)
             const doctorIDs = await UnifiedDoctor.aggregate([
                 {
                     $lookup: {
@@ -197,7 +196,7 @@ const adminController = {
                 },
                 {
                     $project: {
-                        _id: 1 // Retrieve only the IDs of associated doctors
+                        _id: 1
                     }
                 }
             ]);
@@ -209,7 +208,6 @@ const adminController = {
             
             const { _id } = doctorIDs[0];
 
-            // Delete associated doctor(s) using the retrieved IDs
             const deletionResult = await UnifiedDoctor.deleteOne({ _id });
             const deleteUser = await User.deleteOne({userName: username});
             
@@ -316,7 +314,7 @@ const adminController = {
         try {
             const { hospitalId } = req.params;
             const hospitalData = req.body;
-            console.log(hospitalData);
+            // console.log(hospitalData);
             const hospital = await Hospital.findOneAndUpdate({ "hospitalId": hospitalId }, hospitalData, { new: true });
 
             if (!hospital) {
