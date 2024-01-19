@@ -147,7 +147,7 @@ const superAdminController = {
     deleteAdminByUserName: async (req, res) => {
         try {
             const { userName } = req.params;
-            console.log(userName);
+            // console.log(userName);
             const deletedAdmin = await Admin.aggregate([
                 {
                     $lookup: {

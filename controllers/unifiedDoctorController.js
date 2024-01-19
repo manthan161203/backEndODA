@@ -107,7 +107,7 @@ const unifiedDoctorController = {
     getDoctorByHospital: async (req, res) => {
         try {
             const { hospitalName } = req.params;
-            console.log(hospitalName);
+            // console.log(hospitalName);
             const doctors = await UnifiedDoctor.aggregate([
                 {
                     $lookup: {
