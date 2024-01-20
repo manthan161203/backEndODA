@@ -1,3 +1,4 @@
+const { response } = require('express');
 const Appointment = require('../models/appointmentSchema')
 const Patient = require('../models/patientSchema')
 const sendOTPViaEmail = require('../services/otpNodeMailer');
@@ -110,6 +111,39 @@ const patientController = {
         } catch (error) {
             console.error(error);
             res.status(500).json({ message: "Internal Server Error" });
+        }
+    },
+
+    // Get Role Based Details
+    getRoleBasedDetails: async (req, res) => {
+        try {
+            const { userName } = req.params;
+            // console.log(userName);
+            const data = await Patient.aggregate([
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'user',
+                        foreignField: '_id',
+                        as: 'user'
+                    }
+                },
+                {
+                    $match: {
+                        'user.userName': userName
+                    }
+                },
+                {
+                    $unwind: '$user',
+                },
+                {
+                    $limit: 1
+                }
+            ]);
+            res.status(200).send(data);
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({ message: "Internal Server Error"});
         }
     }
 }
