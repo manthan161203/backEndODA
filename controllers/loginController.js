@@ -66,9 +66,10 @@ const verifyOTPByUserName = async (req, res) => {
     const userName = req.params.userName;
     const enteredOTP = req.body.otp;
     const enteredPassword = req.body.password;
-
+    // console.log("Hi");
     try {
         const user = await User.findOne({ userName });
+        // console.log(user);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -78,13 +79,17 @@ const verifyOTPByUserName = async (req, res) => {
             return res.status(400).json({ message: 'Invalid OTP or OTP expired' });
         }
 
-        const isPasswordValid = await bcrypt.compare(enteredPassword, user.password);
+        // const isPasswordValid = await bcrypt.compare(enteredPassword, user.password);
+        const isPasswordValid = enteredPassword === user.password ? true : false;
+        // console.log('Hi -1');
         if (!isPasswordValid) {
             return res.status(401).json({ message: 'Invalid password' });
         }
-
+        // console.log('Hi 0');
         const secretKey = generateSecretKey();
+        // console.log('Hi 1');
         const token = jwt.sign({userName: user.userName }, secretKey, { expiresIn: '1h' });
+        // console.log('Hi 2');
         console.log("Token " + token);
 
         user.otp.splice(otpIndex, 1);
