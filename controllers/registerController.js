@@ -1,6 +1,9 @@
 const User = require('../models/userSchema');
 const crypto = require('crypto');
+const bcrypt = require('bcrypt');
 const sendOTPViaSMS = require('../services/otpTwilio');
+
+const saltRounds = 10;
 
 // Function to generate OTP
 const generateOTP = () => {
@@ -17,7 +20,6 @@ const register = {
     async submitInfo(req, res) {
         try {
             const {
-                // userId,
                 firstName,
                 lastName,
                 email,
@@ -44,16 +46,20 @@ const register = {
             if (existingPhoneNumberUser) {
                 return res.status(400).json({ error: 'User already exists with the provided phone number' });
             }
+
             const otp = generateOTP();
             await sendOTPViaSMS(phoneNumber, otp);
             const temporaryOTP = { code: otp, expiryTime: new Date(Date.now() + 600000).toISOString() };
+
+            // Hash the password before saving it
+            const hashedPassword = await bcrypt.hash(password, saltRounds);
+
             const newUser = new User({
-                // userId,
                 firstName,
                 lastName,
                 email,
                 userName,
-                password,
+                password: hashedPassword,
                 dateOfBirth,
                 phoneNumber,
                 address,
@@ -61,10 +67,11 @@ const register = {
                 role,
                 otp: [temporaryOTP]
             });
-            
+
             await newUser.save();
             res.status(201).json({ message: 'User information submitted successfully' });
         } catch (error) {
+            console.error(error);
             res.status(500).json({ error: 'Internal Server Error' });
         }
     },
@@ -106,7 +113,6 @@ const register = {
             res.status(500).json({ error: 'Internal Server Error' });
         }
     }
-    
 };
 
 module.exports = register;
