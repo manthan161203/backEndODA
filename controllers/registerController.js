@@ -20,6 +20,7 @@ const register = {
     async submitInfo(req, res) {
         try {
             const {
+                userId,
                 firstName,
                 lastName,
                 email,
@@ -55,6 +56,7 @@ const register = {
             const hashedPassword = await bcrypt.hash(password, saltRounds);
 
             const newUser = new User({
+                userId,
                 firstName,
                 lastName,
                 email,
