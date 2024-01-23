@@ -34,6 +34,7 @@ const addOTPToList = async (userName, otp) => {
 const addOTPByUserName = async (req, res) => {
     const userName = req.params.userName;
     const sendMethod = req.params.sendMethod; // 'sms' or 'email'
+    const enteredPassword = req.body.password;
 
     try {
         const otp = generateOTP();
@@ -44,6 +45,13 @@ const addOTPByUserName = async (req, res) => {
             return res.status(404).json({ message: 'User not found' });
         }
 
+        const isPasswordValid = await bcrypt.compare(enteredPassword, user.password);
+        // const isPasswordValid = enteredPassword === user.password ? true : false;
+        // console.log('Hi -1');
+        if (!isPasswordValid) {
+            return res.status(401).json({ message: 'Invalid password' });
+        }
+        
         if (sendMethod === 'sms') {
             const phoneNumber = user.phoneNumber;
             await sendOTPViaSMS(phoneNumber, otp);
@@ -65,7 +73,6 @@ const addOTPByUserName = async (req, res) => {
 const verifyOTPByUserName = async (req, res) => {
     const userName = req.params.userName;
     const enteredOTP = req.body.otp;
-    const enteredPassword = req.body.password;
     // console.log("Hi");
     try {
         const user = await User.findOne({ userName });
@@ -79,12 +86,6 @@ const verifyOTPByUserName = async (req, res) => {
             return res.status(400).json({ message: 'Invalid OTP or OTP expired' });
         }
 
-        // const isPasswordValid = await bcrypt.compare(enteredPassword, user.password);
-        const isPasswordValid = enteredPassword === user.password ? true : false;
-        // console.log('Hi -1');
-        if (!isPasswordValid) {
-            return res.status(401).json({ message: 'Invalid password' });
-        }
         // console.log('Hi 0');
         const secretKey = generateSecretKey();
         // console.log('Hi 1');
