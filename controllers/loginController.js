@@ -7,7 +7,7 @@ const sendOTPViaEmail = require('../services/otpNodeMailer');
 
 // Function to generate OTP
 const generateOTP = () => {
-    const otp = crypto.randomBytes(3).toString('hex').toUpperCase();
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
     return otp;
 };
 
@@ -17,12 +17,8 @@ const generateSecretKey = () => {
 };
 
 // Function to add OTP to user's list
-const addOTPToList = async (userName, otp) => {
+const addOTPToList = async (user, otp) => {
     try {
-        const user = await User.findOne({userName});
-        if (!user) {
-            throw new Error('User not found');
-        }
         user.otp.push({ code: otp, expiryTime: new Date(Date.now() + 600000).toISOString() });
         await user.save();
     } catch (error) {
@@ -38,20 +34,20 @@ const addOTPByUserName = async (req, res) => {
 
     try {
         const otp = generateOTP();
-        await addOTPToList(userName, otp);
-
+        
         const user = await User.findOne({ userName });
         if (!user) {
-            return res.status(404).json({ message: 'User not found' });
-        }
-
-        const isPasswordValid = await bcrypt.compare(enteredPassword, user.password);
-        // const isPasswordValid = enteredPassword === user.password ? true : false;
-        // console.log('Hi -1');
-        if (!isPasswordValid) {
-            return res.status(401).json({ message: 'Invalid password' });
+            return res.status(404).json({ success: false, message: 'User not found' });
         }
         
+        const isPasswordValid = await bcrypt.compare(enteredPassword, user.password);
+        
+        if (!isPasswordValid) {
+            return res.status(401).json({ success: false, message: 'Invalid password' });
+        }
+        
+        await addOTPToList(user, otp);
+
         if (sendMethod === 'sms') {
             const phoneNumber = user.phoneNumber;
             await sendOTPViaSMS(phoneNumber, otp);
@@ -62,12 +58,14 @@ const addOTPByUserName = async (req, res) => {
             throw new Error('Invalid send method');
         }
 
-        res.status(200).json({ message: `OTP added to the user's list and sent Via ${sendMethod.toUpperCase()} successfully` });
+        res.status(200).json({ success: true, message: `OTP added to the user's list and sent via ${sendMethod.toUpperCase()} successfully` });
     } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Failed to add OTP or send Via SMS/Email' });
+        console.error('Error during OTP sending:', error);
+        res.status(500).json({ success: false, message: 'Failed to add OTP or send via SMS/Email', error: error.message });
     }
 };
+
+
 
 // Verify OTP and Password by userName route handler
 const verifyOTPByUserName = async (req, res) => {
