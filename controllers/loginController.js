@@ -26,6 +26,42 @@ const addOTPToList = async (user, otp) => {
     }
 };
 
+const sendOTPForgotPassword = async (req, res) => {
+    const userName = req.params.userName;
+    const sendMethod = req.params.sendMethod;
+    try {
+        const otp = generateOTP();
+        
+        const user = await User.findOne({ userName });
+        if (!user) {
+            return res.status(404).json({ success: false, message: 'User not found' });
+        }
+        
+        // const isPasswordValid = await bcrypt.compare(enteredPassword, user.password);
+        
+        // if (!isPasswordValid) {
+        //     return res.status(401).json({ success: false, message: 'Invalid password' });
+        // }
+        
+        await addOTPToList(user, otp);
+
+        if (sendMethod === 'sms') {
+            const phoneNumber = user.phoneNumber;
+            await sendOTPViaSMS(phoneNumber, otp);
+        } else if (sendMethod === 'email') {
+            const email = user.email;
+            await sendOTPViaEmail(email, "Verification Code", "Your verification code is: " + otp);
+        } else {
+            throw new Error('Invalid send method');
+        }
+
+        res.status(200).json({ success: true, message: `OTP added to the user's list and sent via ${sendMethod.toUpperCase()} successfully` });
+    } catch (error) {
+        console.error('Error during OTP sending:', error);
+        res.status(500).json({ success: false, message: 'Failed to add OTP or send via SMS/Email', error: error.message });
+    }
+}
+
 // Add OTP by userName route handler
 const addOTPByUserName = async (req, res) => {
     const userName = req.params.userName;
@@ -103,5 +139,6 @@ const verifyOTPByUserName = async (req, res) => {
 
 module.exports = {
     addOTPByUserName,
-    verifyOTPByUserName
+    verifyOTPByUserName,
+    sendOTPForgotPassword
 };
