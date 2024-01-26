@@ -2,12 +2,13 @@ const User = require('../models/userSchema');
 const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const sendOTPViaSMS = require('../services/otpTwilio');
+const sendOTPViaEmail = require('../services/otpNodeMailer');
 
 const saltRounds = 10;
 
 // Function to generate OTP
 const generateOTP = () => {
-    const otp = crypto.randomBytes(3).toString('hex').toUpperCase();
+    const otp = Math.floor(1000 + Math.random() * 9000).toString();
     return otp;
 };
 
@@ -18,6 +19,7 @@ const verifyOTP = (user, otpCode) => {
 
 const register = {
     async submitInfo(req, res) {
+        const { sendMethod } = req.params;
         try {
             const {
                 userId,
@@ -49,7 +51,15 @@ const register = {
             }
 
             const otp = generateOTP();
-            await sendOTPViaSMS(phoneNumber, otp);
+            // await sendOTPViaSMS(phoneNumber, otp);
+            // await sendOTPViaEmail(email, 'Verification Code', `Your verification code is: ${otp}`);
+            if (sendMethod === 'sms') {
+                await sendOTPViaSMS(phoneNumber, otp);
+            } else if (sendMethod === 'email') {
+                await sendOTPViaEmail(email, "Verification Code", "Your verification code is: " + otp);
+            } else {
+                throw new Error('Invalid send method');
+            }
             const temporaryOTP = { code: otp, expiryTime: new Date(Date.now() + 600000).toISOString() };
 
             // Hash the password before saving it
@@ -88,7 +98,7 @@ const register = {
             }
 
             user.invalidOTPAttempts = user.invalidOTPAttempts || 0;
-    
+            
             const isOTPVerified = verifyOTP(user, otpCode);
     
             if (!isOTPVerified) {
