@@ -20,8 +20,53 @@ const sendEmailNotification = async (email) => {
 const patientController = {
     getAppointmentsByPatientID: async (req, res) => {
         try {
-            const { patientID } = req.params;
-            const appointments = await Appointment.find({ patient: patientID });
+            const { userName } = req.params;
+            // console.log(userName);
+            const appointments = await Appointment.aggregate([
+                {
+                    $lookup: {
+                        from: 'patients',
+                        localField: 'patient',
+                        foreignField: '_id',
+                        as: 'patientInfo',
+                    },
+                },
+                {
+                    $unwind: '$patientInfo',
+                },
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'patientInfo.user',
+                        foreignField: '_id',
+                        as: 'userInfo',
+                    },
+                },
+                {
+                    $unwind: '$userInfo',
+                },
+                {
+                    $match: {
+                        'userInfo.userName': userName,
+                    },
+                },
+                {
+                    $project: {
+                        _id: 0,
+                        appointmentId: 1,
+                        patient: '$patientInfo._id',
+                        doctor: 1,
+                        date: 1,
+                        slot: 1,
+                        status: 1,
+                        prerequisite: 1,
+                        recommendedDoctors: 1,
+                        notes: 1,
+                        createdAt: 1,
+                        updatedAt: 1,
+                    },
+                },
+            ]);
             res.status(200).json(appointments);
         } catch (error) {
             console.error(error);
