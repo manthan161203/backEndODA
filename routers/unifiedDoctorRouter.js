@@ -5,7 +5,7 @@ const doctorController = require('../controllers/unifiedDoctorController');
 
 router.put('/updateUserDataDoctor/:userName', adminController.updateUserDataOfDoctorByUserName);
 router.put('/updateDoctorData/:userName', adminController.updateDoctorDataByUserName);
-router.get('/getAppointments/:doctorID', doctorController.getAppointmentsByDoctorID);
+router.get('/getAppointments/:doctorID', doctorController.getAppointmenntsByDoctorID);
 router.put('/appointmentAorD/:appointmentID', doctorController.updateAppointmentStatus);
 router.get('/getPatientInfo/:patientID', doctorController.getPatientInfo);
 router.get('/getDoctorsBySpecialization/:specialization', doctorController.getDoctorBySpecialization);
