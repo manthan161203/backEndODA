@@ -145,6 +145,7 @@ const patientController = {
         try {
             const { emailID } = req.params;
             const appointmentData = req.body;
+            appointmentData.appointmentId = (Date.now())*2;
             const appointment =  await Appointment.create(appointmentData);
             if(appointment){
                 sendEmailNotification(emailID);
