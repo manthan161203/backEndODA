@@ -1,5 +1,6 @@
 const Admin = require('../models/adminSchema');
 const User = require('../models/userSchema');
+const Patient = require('../models/patientSchema');
 
 const superAdminController = {
     // Retrieve all admins
@@ -180,6 +181,15 @@ const superAdminController = {
             }
 
             return res.status(200).json({ message: 'Admin deleted successfully' });
+        } catch (err) {
+            return res.status(500).json({ message: err.message });
+        }
+    },
+
+    getAllPatients: async (req, res) => {
+        try {
+            const patients = await Patient.find().populate('user').exec();
+            return res.status(200).json(patients);
         } catch (err) {
             return res.status(500).json({ message: err.message });
         }

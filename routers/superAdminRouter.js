@@ -4,6 +4,7 @@ const superAdminController = require('../controllers/superAdminController');
 const router = express.Router();
 
 router.get('/getAllAdmin', superAdminController.getAllAdmins);
+router.get('/getAllPatient', superAdminController.getAllPatients);
 router.get('/getAdmin/:userName', superAdminController.getByUserName);
 router.get('/getAdmin/department/:department', superAdminController.getByDepartment);
 // router.post('/createAdmin', superAdminController.createAdmin);
