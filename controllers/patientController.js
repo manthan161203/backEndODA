@@ -51,6 +51,11 @@ const patientController = {
                     },
                 },
                 {
+                    $sort:{
+                        date:-1
+                    }
+                },
+                {
                     $project: {
                         _id: 0,
                         appointmentId: 1,
