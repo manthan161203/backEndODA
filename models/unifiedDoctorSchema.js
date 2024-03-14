@@ -22,7 +22,7 @@ const unifiedDoctorSchema = new mongoose.Schema({
     },
     doctorType: {
         type: String,
-        enum: ['doctor', 'clinicaldoctor', 'therapist'],
+        enum: ['doctor', 'clinical doctor', 'therapist'],
         required: true
     },
     hospitalID: {

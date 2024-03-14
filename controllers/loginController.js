@@ -100,17 +100,11 @@ const addOTPByUserName = async (req, res) => {
         res.status(500).json({ success: false, message: 'Failed to add OTP or send via SMS/Email', error: error.message });
     }
 };
-
-
-
-// Verify OTP and Password by userName route handler
 const verifyOTPByUserName = async (req, res) => {
     const userName = req.params.userName;
     const enteredOTP = req.body.otp;
-    // console.log("Hi");
     try {
         const user = await User.findOne({ userName });
-        // console.log(user);
         if (!user) {
             return res.status(404).json({ message: 'User not found' });
         }
@@ -119,17 +113,11 @@ const verifyOTPByUserName = async (req, res) => {
         if (otpIndex === -1) {
             return res.status(400).json({ message: 'Invalid OTP or OTP expired' });
         }
-
-        // console.log('Hi 0');
         const secretKey = generateSecretKey();
-        // console.log('Hi 1');
         const token = jwt.sign({userName: user.userName }, secretKey, { expiresIn: '1h' });
-        // console.log('Hi 2');
         console.log("Token " + token);
-
         user.otp.splice(otpIndex, 1);
         await user.save();
-
         res.status(200).json(user);
     } catch (error) {
         console.error(error);

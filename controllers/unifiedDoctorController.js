@@ -3,7 +3,7 @@ const Appointments = require('../models/appointmentSchema');
 const Patient = require('../models/patientSchema');
 const UnifiedDoctor = require('../models/unifiedDoctorSchema');
 const sendOTPViaEmail = require('../services/otpNodeMailer');
-
+const moment = require("moment")
 const sendEmailNotification = async (appointment) => {
     try {
         const toEmail = appointment.patient.user.email;
@@ -33,9 +33,9 @@ const sendEmailNotification = async (appointment) => {
 const unifiedDoctorController = {
     getAppointmentsByDoctorID: async (req, res) => {
         try {
-            const { doctorID } = req.params;
-            // console.log(doctorID);
-            const appointments = await Appointments.find({'doctor': doctorID}).populate({path: 'patient', populate: 'user'}).exec();
+            const doctorId = await UnifiedDoctor.findOne({user:req.params.doctorID},{doctor:true});
+            console.log(doctorId)
+            const appointments = await Appointments.find({'doctor': doctorId._id}).populate({path: 'patient', populate: 'user'}).exec();
             // console.log(appointments);
             res.status(200).json(appointments);
         } catch (error) {
@@ -43,8 +43,158 @@ const unifiedDoctorController = {
             res.status(500).json({ error: "Internal Server Error" });
         }
     },
+    getActiveAppointmentsByDoctorID: async (req, res) => {
+        try {
+            const doctorId = await UnifiedDoctor.findOne({user:req.params.doctorID},{doctor:true});
+            console.log(doctorId)
+            const appointments = await Appointments.find({'doctor': doctorId._id,status:'Active'}).populate({path: 'patient', populate: 'user'}).exec();
+            console.log(appointments);
+            res.status(200).json(appointments);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    },
+    getUpComingAppointmentsByDoctorID: async (req, res) => {
+        try {
+            const doctorId = await UnifiedDoctor.findOne({user:req.params.doctorID},{doctor:true});
+            console.log(doctorId)
+            const appointments = await Appointments.find({'doctor': doctorId._id,status:'Accepted'}).populate({path: 'patient', populate: 'user'}).exec();
+            const upcomingAppointments = appointments.filter((app)=>{
+                if(moment().isBefore(moment(appointments.date))){
+                    return app;
+                }
+            })
+            // console.log(appointments);
+            res.status(200).json(upcomingAppointments);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    },
+    getTodayAppointmentsByDoctorID: async (req, res) => {
+        try {
+            const doctorId = await UnifiedDoctor.findOne({user:req.params.doctorID},{doctor:true});
+            console.log(doctorId)
+            const appointments = await Appointments.find({'doctor': doctorId._id,status:'Accepted'}).populate({path: 'patient', populate: 'user'}).exec();
+            const todayAppointments = appointments.filter((app)=>{
+                if(moment().isSame(moment(appointments.date))){
+                    return app;
+                }
+            })
+            res.status(200).json(todayAppointments);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    },
 
+    getPendingAppointmentsByDoctorID: async (req, res) => {
+        try {
+            const doctorId = await UnifiedDoctor.findOne({user:req.params.doctorID},{_id:true});
+            console.log(doctorId)
+            const appointments = await Appointments.find({'doctor': doctorId._id,status:'Pending'}).populate({path: 'patient', populate: 'user'}).exec();
+            const expAppointments = appointments.filter((app)=>{
+                if(moment().isAfter(moment(app.date))){
+                    return app;
+                }
+            })
+            const pendingAppointmnets = appointments.filter((app)=>{
+                if(moment().isBefore(moment(app.date))){
+                    return app;
+                }
+            })
+
+            for(const appointment of expAppointments){
+                await Appointments.findByIdAndUpdate(appointment._id,{status:"Rejected"});
+            }
+            console.log(pendingAppointmnets);
+            res.status(200).json(pendingAppointmnets);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    },
+    getUpComingAppointmentsCount: async (req, res) => {
+        try {
+            const doctorId = await UnifiedDoctor.findOne({user:req.params.doctorID},{doctor:true});
+            // console.log(doctorId)
+            const appointments = await Appointments.find({'doctor': doctorId._id,status:'Accepted'}).populate({path: 'patient', populate: 'user'}).exec();
+            // console.log(appointments)
+            const upcomingAppointments = appointments.filter((app)=>{
+                if(moment().isBefore(moment(app.date))){
+                    return app;
+                }
+            })
+            // console.log(upcomingAppointments);
+            res.status(200).json(upcomingAppointments.length??0);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    },
+    getTodayAppointmentsCount: async (req, res) => {
+        try {
+            
+            const doctorId = await UnifiedDoctor.findOne({user:req.params.doctorID},{doctor:true});
+            const appointments = await Appointments.find({'doctor': doctorId._id,status:'Accepted'}).populate({path: 'patient', populate: 'user'}).exec();
+            const todayAppointments = appointments.filter((app)=>{
+                if(moment().isSame(moment(appointments.date))){
+                    return app;
+                }
+            })
+            // console.log(todayAppointments)
+            res.status(200).json(todayAppointments.length??0);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    },
+
+    getPendingAppointmentsCount: async (req, res) => {
+        try {
+            const doctorId = await UnifiedDoctor.findOne({user:req.params.doctorID},{doctor:true});
+            const appointments = await Appointments.find({'doctor': doctorId._id,status:'Pending'}).populate({path: 'patient', populate: 'user'}).exec();
+            // console.log(appointments)
+            const expAppointments = appointments.filter((app)=>{
+                if(moment().isAfter(moment(app.date))){
+                    return app;
+                }
+            })
+            const pendingAppointmnets = appointments.filter((app)=>{
+                if(moment().isBefore(moment(app.date))){
+                    console.log(app.date)
+                    return app;
+                }
+            })
+
+            for(const appointment of expAppointments){
+                await Appointments.findByIdAndUpdate(appointment._id,{status:"Rejected"});
+            }
+            // console.log(pendingAppointmnets);
+            res.status(200).json(pendingAppointmnets.length??0);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    },
     // Update Appointment Status
+    acceptAppointment: async (req, res) => {
+        try {
+            const { appointmentID } = req.params;
+            const appointment = await Appointments.findByIdAndUpdate(appointmentID,
+                { $set:{status : 'Accepted' }},
+                { new: true }
+            ).populate({path: 'patient', populate: 'user'}).exec();
+
+            await sendEmailNotification(appointment);
+            // res.status(200).json({ message: 'Appointment status updated successfully' });
+            res.status(200).json(appointment);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    },
     updateAppointmentStatus: async (req, res) => {
         try {
             const { appointmentID } = req.params;

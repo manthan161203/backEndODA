@@ -51,6 +51,10 @@ const userSchema = new mongoose.Schema({
         enum: ['patient', 'doctor', 'clinical doctor', 'therapist', 'admin', 'superAdmin'],
         required: true
     },
+    isSubProfileSet: {
+        type: Boolean,
+        default: true
+    },
     otp: [{
         code: {
             type: String

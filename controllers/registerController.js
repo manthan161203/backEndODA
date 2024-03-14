@@ -3,6 +3,8 @@ const crypto = require('crypto');
 const bcrypt = require('bcrypt');
 const sendOTPViaSMS = require('../services/otpTwilio');
 const sendOTPViaEmail = require('../services/otpNodeMailer');
+const Patient = require('../models/patientSchema');
+const UnifiedDoctor = require('../models/unifiedDoctorSchema');
 
 const saltRounds = 10;
 
@@ -118,7 +120,42 @@ const register = {
             user.invalidOTPAttempts = 0;
             
             await user.save();
-    
+            if(user.role == "patient"){
+                const patient = new Patient({
+                    user: user._id,
+                    medicalHistory: " ",
+                    allergies: " ",
+                    emergencyContact: {
+                        name: " ",
+                        relationship: " ",
+                        phoneNumber: " ",
+                    },
+                    healthMetrics: {
+                        height: " ",
+                        weight: " ",
+                        bloodGroup: " ",
+                    }
+                })
+                patient.save();
+            }
+            else if(user.role == "clinical doctor" || user.role == "doctor" || user.role == "therapist"){
+                const doctor = new UnifiedDoctor({
+                    user: user._id,
+                    doctorSpecialization: " ",
+                    doctorDegree: " ",
+                    doctorBio: " ",
+                    fee: " ",
+                })
+                if(user.role == "therapist"){
+                    
+                    doctor.doctorType =  "therapist",
+                    doctor.therapistAddress = " ";
+                }else{
+                    doctor.doctorType =  "clinical doctor",
+                    doctor.clinicAddress = " ";
+                }
+                doctor.save();
+            }  
             res.status(201).json({ message: 'User registered successfully' });
         } catch (error) {
             console.error(error);
