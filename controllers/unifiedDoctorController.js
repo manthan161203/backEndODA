@@ -253,6 +253,17 @@ const unifiedDoctorController = {
         }
     },
 
+    // Get All Doctors
+    getAllDoctors: async (req, res) => {
+        try {
+            const doctors = await UnifiedDoctor.find().populate('user');
+            res.status(200).json(doctors);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    },
+
     // Get Doctors by Hospital
     getDoctorByHospital: async (req, res) => {
         try {
