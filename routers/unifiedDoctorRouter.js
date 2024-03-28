@@ -18,5 +18,7 @@ router.get('/getPendingAppointmentsCount/:doctorID', doctorController.getPending
 router.get('/getPendingAppointments/:doctorID', doctorController.getPendingAppointmentsByDoctorID);
 router.post('/acceptAppointment/:appointmentID', doctorController.acceptAppointment);
 router.get('/getAppointmentsHistoryByDoctorID/:doctorID', doctorController.getAppointmentsHistoryByDoctorID);
+router.get('/getAllDoctors', doctorController.getAllDoctors);
+router.get('/getAllAppointments', doctorController.getAllAppointments);
 
 module.exports = router;

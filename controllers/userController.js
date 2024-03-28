@@ -13,6 +13,15 @@ const userController = {
             res.status(500).json({ error: "Internal Server Error" });
         }
     },
+    getAllUsers: async (req, res) => {
+        try {
+            const user = await User.find();
+            res.status(200).json(user);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    },
     updateUserDetails: async (req, res) => {
         try {
             const { userName } = req.params;
