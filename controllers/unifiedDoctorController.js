@@ -3,7 +3,8 @@ const Appointments = require('../models/appointmentSchema');
 const Patient = require('../models/patientSchema');
 const UnifiedDoctor = require('../models/unifiedDoctorSchema');
 const sendOTPViaEmail = require('../services/otpNodeMailer');
-const moment = require("moment")
+const moment = require("moment");
+const Appointment = require('../models/appointmentSchema');
 const sendEmailNotification = async (appointment) => {
     try {
         const toEmail = appointment.patient.user.email;
@@ -37,6 +38,15 @@ const unifiedDoctorController = {
             console.log(doctorId)
             const appointments = await Appointments.find({'doctor': doctorId._id}).populate({path: 'patient', populate: 'user'}).exec();
             // console.log(appointments);
+            res.status(200).json(appointments);
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    },
+    getAllAppointments: async (req, res) => {
+        try {
+            const appointments = await Appointment.find();
             res.status(200).json(appointments);
         } catch (error) {
             console.error(error);
