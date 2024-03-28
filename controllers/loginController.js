@@ -70,7 +70,6 @@ const addOTPByUserName = async (req, res) => {
 
     try {
         const otp = generateOTP();
-        
         const user = await User.findOne({ userName });
         if (!user) {
             return res.status(404).json({ success: false, message: 'User not found' });

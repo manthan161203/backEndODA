@@ -36,14 +36,16 @@ const appointmentSchema = new mongoose.Schema({
         default: 'Pending'
     },
     prerequisite: {
-        type: String
+        type: String,
+        default: "No Prerequisite"
     },
     recommendedDoctors: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'UnifiedDoctor'
     }],
     notes: {
-        type: String
+        type: String,
+        default: "No Notes",
     }
 
 }, { timestamps: true });

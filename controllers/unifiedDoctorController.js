@@ -35,7 +35,7 @@ const unifiedDoctorController = {
         try {
             const doctorId = await UnifiedDoctor.findOne({user:req.params.doctorID},{doctor:true});
             console.log(doctorId)
-            const appointments = await Appointments.find({'doctor': doctorId._id}).populate({path: 'patient', populate: 'user'}).exec();
+            const appointments = await Appointments.find({'doctor': doctorId._id}).sort({date:1}).populate({path: 'patient', populate: 'user'}).exec();
             // console.log(appointments);
             res.status(200).json(appointments);
         } catch (error) {
@@ -49,7 +49,27 @@ const unifiedDoctorController = {
             console.log(doctorId)
             const appointments = await Appointments.find({'doctor': doctorId._id,status:'Active'}).populate({path: 'patient', populate: 'user'}).exec();
             console.log(appointments);
-            res.status(200).json(appointments);
+            if(appointments.length == 0){
+                res.status(200).json(0);
+            }else{
+                res.status(200).json(appointments);
+            }
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
+    },
+    getAppointmentsHistoryByDoctorID: async (req, res) => {
+        try {
+            const doctorId = await UnifiedDoctor.findOne({user:req.params.doctorID},{doctor:true});
+            console.log(doctorId)
+            const appointments = await Appointments.find({'doctor': doctorId._id}).populate({path: 'doctor', populate: 'user'}).populate({path: 'patient', populate: 'user'}).exec();
+            console.log(appointments);
+            if(appointments.length == 0){
+                res.status(200).json(0);
+            }else{
+                res.status(200).json(appointments);
+            }
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: "Internal Server Error" });
@@ -65,8 +85,9 @@ const unifiedDoctorController = {
                     return app;
                 }
             })
-            // console.log(appointments);
-            res.status(200).json(upcomingAppointments);
+            const sortedAppointments  = upcomingAppointments.sort((a,b) => new moment(a.date).format('YYYYMMDD') - new moment(b.date).format('YYYYMMDD'))
+            console.log(sortedAppointments);
+            res.status(200).json(sortedAppointments);
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: "Internal Server Error" });
@@ -76,7 +97,7 @@ const unifiedDoctorController = {
         try {
             const doctorId = await UnifiedDoctor.findOne({user:req.params.doctorID},{doctor:true});
             console.log(doctorId)
-            const appointments = await Appointments.find({'doctor': doctorId._id,status:'Accepted'}).populate({path: 'patient', populate: 'user'}).exec();
+            const appointments = await Appointments.find({'doctor': doctorId._id,status:'Accepted'}).sort({date:1}).populate({path: 'patient', populate: 'user'}).exec();
             const todayAppointments = appointments.filter((app)=>{
                 if(moment().isSame(moment(appointments.date))){
                     return app;
@@ -93,10 +114,12 @@ const unifiedDoctorController = {
         try {
             const doctorId = await UnifiedDoctor.findOne({user:req.params.doctorID},{_id:true});
             console.log(doctorId)
-            const appointments = await Appointments.find({'doctor': doctorId._id,status:'Pending'}).populate({path: 'patient', populate: 'user'}).exec();
+            const appointments = await Appointments.find({'doctor': doctorId._id,status:'Pending'}).populate({path: 'patient', populate: 'user'}).exec().sort({date:-1});
             const expAppointments = appointments.filter((app)=>{
-                if(moment().isAfter(moment(app.date))){
-                    return app;
+                if(!moment().isSame(moment(app.date))){
+                    if(moment().isAfter(moment(app.date))){
+                        return app;
+                    }
                 }
             })
             const pendingAppointmnets = appointments.filter((app)=>{
@@ -119,7 +142,7 @@ const unifiedDoctorController = {
         try {
             const doctorId = await UnifiedDoctor.findOne({user:req.params.doctorID},{doctor:true});
             // console.log(doctorId)
-            const appointments = await Appointments.find({'doctor': doctorId._id,status:'Accepted'}).populate({path: 'patient', populate: 'user'}).exec();
+            const appointments = (await Appointments.find({'doctor': doctorId._id,status:'Accepted'}).populate({path: 'patient', populate: 'user'}).sort({date:-1}).exec());
             // console.log(appointments)
             const upcomingAppointments = appointments.filter((app)=>{
                 if(moment().isBefore(moment(app.date))){
@@ -139,7 +162,7 @@ const unifiedDoctorController = {
             const doctorId = await UnifiedDoctor.findOne({user:req.params.doctorID},{doctor:true});
             const appointments = await Appointments.find({'doctor': doctorId._id,status:'Accepted'}).populate({path: 'patient', populate: 'user'}).exec();
             const todayAppointments = appointments.filter((app)=>{
-                if(moment().isSame(moment(appointments.date))){
+                if(moment().isSame(moment(app.date))){
                     return app;
                 }
             })
@@ -155,10 +178,11 @@ const unifiedDoctorController = {
         try {
             const doctorId = await UnifiedDoctor.findOne({user:req.params.doctorID},{doctor:true});
             const appointments = await Appointments.find({'doctor': doctorId._id,status:'Pending'}).populate({path: 'patient', populate: 'user'}).exec();
-            // console.log(appointments)
             const expAppointments = appointments.filter((app)=>{
-                if(moment().isAfter(moment(app.date))){
-                    return app;
+                if(!moment().isSame(moment(app.date))){
+                    if(moment().isAfter(moment(app.date))){
+                        return app;
+                    }
                 }
             })
             const pendingAppointmnets = appointments.filter((app)=>{
@@ -183,7 +207,7 @@ const unifiedDoctorController = {
         try {
             const { appointmentID } = req.params;
             const appointment = await Appointments.findByIdAndUpdate(appointmentID,
-                { $set:{status : 'Accepted' }},
+                { $set:{status : 'Accepted' , prerequisite:req.body.prerequisite, notes:req.body.notes}},
                 { new: true }
             ).populate({path: 'patient', populate: 'user'}).exec();
 
