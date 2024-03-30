@@ -61,6 +61,17 @@ const userController = {
             console.error(error);
             res.status(500).json({ error: "Internal Server Error" });
         }
+    },
+    checkUsername: async (req, res) => {
+        try {
+            const { userName } = req.body;
+            const existingUser = await User.findOne({ userName });
+            const usernameExists = !!existingUser;
+            res.status(200).json({ usernameExists });
+        } catch (error) {
+            console.error(error);
+            res.status(500).json({ error: "Internal Server Error" });
+        }
     }   
 };
 
