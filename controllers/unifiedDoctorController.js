@@ -1,4 +1,5 @@
 const { response } = require("express");
+const mongoose = require('mongoose');
 const Appointments = require("../models/appointmentSchema");
 const Patient = require("../models/patientSchema");
 const UnifiedDoctor = require("../models/unifiedDoctorSchema");
@@ -481,6 +482,75 @@ const unifiedDoctorController = {
       res.status(500).json({ error: "Internal Server Error" });
     }
   },
+
+    createDoctor: async (req, res) => {
+        try {
+            // console.log("Hii");
+            const doctorData = req.body;
+            const userId = doctorData.user;
+            if (!userId) {
+                return res.status(400).json({ message: 'User ID is required.' });
+            }
+            
+            let userObjectId;
+            try {
+                userObjectId = mongoose.Types.ObjectId.createFromHexString(userId);
+                // console.log(doctorData);
+            } catch (error) {
+                return res.status(400).json({ message: 'Invalid User ID format.' });
+            }
+            
+            doctorData.user = userObjectId;
+            if (doctorData.doctorType === 'doctor') {
+                const hospitalId = doctorData.hospitalID;
+                if (hospitalId) {
+                    doctorData.hospitalID = mongoose.Types.ObjectId.createFromHexString(hospitalId);
+                } else {
+                    return res.status(400).json({ message: 'Hospital ID is required for Doctor type.' });
+                }
+            }
+            const createdDoctor = await UnifiedDoctor.create(doctorData);
+            
+            return res.status(200).json({ message: 'Doctor Created Successfully', doctor: createdDoctor });
+        } catch (error) {
+            console.error('Error creating doctor:', error.message);
+            return res.status(500).json({ message: 'Error creating doctor', error: error.message });
+        }
+    },
+    
+    // Get Role Based Details
+    getRoleBasedDetails: async (req, res) => {
+        try {
+            const { userName } = req.params;
+            // console.log(userName);
+
+            const data = await UnifiedDoctor.aggregate([
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'user',
+                        foreignField: '_id',
+                        as: 'user'
+                    }
+                },
+                {
+                    $match: {
+                        'user.userName': userName
+                    }
+                },
+                {
+                    $unwind: '$user',
+                },
+                {
+                    $limit: 1
+                }
+            ]);
+            res.status(200).send(data);
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({ message: "Internal Server Error"});
+        }
+    },
 
   // Get Doctors by Specialization
   getDoctorBySpecialization: async (req, res) => {

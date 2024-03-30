@@ -19,6 +19,8 @@ router.get('/getPendingAppointments/:doctorID', doctorController.getPendingAppoi
 router.post('/acceptAppointment/:appointmentID', doctorController.acceptAppointment);
 router.get('/getAppointmentsHistoryByDoctorID/:doctorID', doctorController.getAppointmentsHistoryByDoctorID);
 router.get('/getAllDoctors', doctorController.getAllDoctors);
+router.post('/createDoctor', doctorController.createDoctor);
 router.get('/getAllAppointments', doctorController.getAllAppointments);
+router.get('/getRoleBasedDetails/:userName', doctorController.getRoleBasedDetails);
 
 module.exports = router;

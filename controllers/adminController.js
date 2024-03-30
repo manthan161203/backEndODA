@@ -1,6 +1,8 @@
 const UnifiedDoctor = require("../models/unifiedDoctorSchema");
 const Hospital = require("../models/hospitalSchema");
 const User = require("../models/userSchema");
+const Admin = require("../models/adminSchema");
+const mongoose = require('mongoose');
 
 const adminController = {
     // Get doctors by type, specialization
@@ -21,6 +23,67 @@ const adminController = {
         } catch (error) {
             console.error(error);
             res.status(500).json({ error: "Internal Server Error" });
+        }
+    },
+
+    getRoleBasedDetails: async (req, res) => {
+        try {
+            const { userName } = req.params;
+            // console.log(userName);
+    
+            const data = await Admin.aggregate([
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'user',
+                        foreignField: '_id',
+                        as: 'user'
+                    }
+                },
+                {
+                    $match: {
+                        'user.userName': userName
+                    }
+                },
+                {
+                    $unwind: '$user',
+                },
+                {
+                    $limit: 1
+                }
+            ]);
+            res.status(200).send(data);
+        } catch (error) {
+            console.error(error);
+            res.status(500).send({ message: "Internal Server Error"});
+        }
+    },
+
+    createAdmin: async (req, res) => {
+        console.log("Hi")
+        try {
+            const adminData = req.body;
+            console.log(adminData)
+            const userId = adminData.user;
+            if (!userId) {
+                return res.status(400).json({ message: 'User ID is required.' });
+            }
+    
+            let userObjectId;
+            try {
+                userObjectId = mongoose.Types.ObjectId.createFromHexString(userId);
+            } catch (error) {
+                return res.status(400).json({ message: 'Invalid User ID format.' });
+            }
+    
+            adminData.user = userObjectId;
+    
+            const createdAdmin = await Admin.create(adminData);
+    
+            return res.status(200).json({ message: 'Admin Created Successfully', admin: createdAdmin });
+        } catch (error) {
+            console.error('Error creating admin:', error.message);
+            return res.status(500).json({ message: 'Error creating admin', error: error.message });
         }
     },
 
@@ -174,6 +237,50 @@ const adminController = {
             return res.status(500).json({ message: err.message });
         }
     },
+
+    updateAdminData: async (req, res) => {
+        try {
+            const { userName } = req.params;
+            const updatedData = req.body;
+            await Admin.aggregate([
+                {
+                    $lookup: {
+                        from: 'users',
+                        localField: 'user',
+                        foreignField: '_id',
+                        as: 'userData'
+                    }
+                },
+                {
+                    $match: {
+                        'userData.userName': userName
+                    }
+                },
+                {
+                    $unwind: '$userData'
+                },
+                {
+                    $set: updatedData
+                },
+                {
+                    $project: {
+                        userData: 0,
+                    }
+                },
+                {
+                    $merge: {
+                        into: 'admins',
+                        whenMatched: 'merge'
+                    }
+                }
+            ]);
+    
+            return res.status(200).json({ message: 'Admin Updated Successfully' });
+        } catch (err) {
+            return res.status(500).json({ message: err.message });
+        }
+    },
+    
 
     // Delete a doctor by UserName
     deleteDoctorByUsername: async (req, res) => {
