@@ -165,6 +165,8 @@ const patientController = {
                 return res.status(400).json({ message: 'Invalid User ID format.' });
             }
     
+            patientData.isSubProfileSet = true;
+            
             patientData.user = userObjectId;
             // console.log('Updated patient data:', patientData);
     

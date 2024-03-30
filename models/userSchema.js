@@ -53,7 +53,7 @@ const userSchema = new mongoose.Schema({
     },
     isSubProfileSet: {
         type: Boolean,
-        default: true
+        default: false
     },
     otp: [{
         code: {
