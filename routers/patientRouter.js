@@ -8,6 +8,7 @@ router.get('/getDoctorsBySpecialization/:specialization', doctorController.getDo
 router.get('/getDoctorsByHospital/:hospitalName', doctorController.getDoctorByHospital);
 router.get('/getRoleBasedDetails/:userName', patientController.getRoleBasedDetails);
 router.put('/updateUserDataPatient/:userName', patientController.updateUserDataOfPatientByUserName);
+router.post('/createPatient', patientController.createPatient);
 router.put('/updatePatientData/:userName', patientController.updatePatientDataByUserName);
 router.post('/bookAppointment/:emailID', patientController.bookAppointment);
 

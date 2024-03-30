@@ -1,4 +1,5 @@
 const { response } = require('express');
+const mongoose = require('mongoose');
 const Appointment = require('../models/appointmentSchema')
 const Patient = require('../models/patientSchema')
 const sendOTPViaEmail = require('../services/otpNodeMailer');
@@ -84,7 +85,6 @@ const patientController = {
         try {
             const { userName } = req.params;
             const updatedData = req.body;
-
             const updatedUser = await User.findOneAndUpdate(
                 { userName: userName },
                 { $set: updatedData },
@@ -139,12 +139,45 @@ const patientController = {
                 }
             ]);
     
-            return res.status(200).json({ message: 'Doctor Updated Successfully' });
+            return res.status(200).json({ message: 'Patient Updated Successfully' });
         } catch (err) {
             return res.status(500).json({ message: err.message });
         }
     },
 
+
+    createPatient: async (req, res) => {
+        try {
+            const patientData = req.body;
+            // console.log('Received patient data:', patientData);
+    
+            const userId = patientData.user;
+            if (!userId) {
+                // console.error('User ID is missing in the request body.');
+                return res.status(400).json({ message: 'User ID is required.' });
+            }
+    
+            let userObjectId;
+            try {
+                userObjectId = mongoose.Types.ObjectId.createFromHexString(userId);
+            } catch (error) {
+                // console.error('Invalid User ID format:', error.message);
+                return res.status(400).json({ message: 'Invalid User ID format.' });
+            }
+    
+            patientData.user = userObjectId;
+            // console.log('Updated patient data:', patientData);
+    
+            const createdPatient = await Patient.create(patientData);
+            // console.log('Patient Created:', createdPatient);
+    
+            return res.status(200).json({ message: 'Patient Created Successfully', patient: createdPatient });
+        } catch (error) {
+            console.error('Error creating patient:', error.message);
+            return res.status(500).json({ message: 'Error creating patient', error: error.message });
+        }
+    },
+    
     // Book an appointment
     bookAppointment: async (req, res) => {
         try {
@@ -170,6 +203,7 @@ const patientController = {
         try {
             const { userName } = req.params;
             // console.log(userName);
+
             const data = await Patient.aggregate([
                 {
                     $lookup: {
