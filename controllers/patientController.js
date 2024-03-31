@@ -5,6 +5,7 @@ const User = require("../models/userSchema");
 const sendOTPViaEmail = require("../services/otpNodeMailer");
 const UnifiedDoctor = require("../models/unifiedDoctorSchema");
 const Hospital = require("../models/hospitalSchema");
+const mongoose = require('mongoose');
 const mongoose = require("mongoose");
 
 const sendEmailNotification = async (emailData) => {
