@@ -37,16 +37,21 @@ const adminController = {
                         from: 'users',
                         localField: 'user',
                         foreignField: '_id',
-                        as: 'user'
+                        as: 'userData'
                     }
                 },
                 {
                     $match: {
-                        'user.userName': userName
+                        'userData.userName': userName
                     }
                 },
                 {
-                    $unwind: '$user',
+                    $addFields: {
+                        user: { $arrayElemAt: ['$userData._id', 0] }
+                    }
+                },
+                {
+                    $unset: 'userData'
                 },
                 {
                     $limit: 1
@@ -58,9 +63,11 @@ const adminController = {
             res.status(500).send({ message: "Internal Server Error"});
         }
     },
+    
+    
 
     createAdmin: async (req, res) => {
-        console.log("Hi")
+        // console.log("Hi")
         try {
             const adminData = req.body;
             console.log(adminData)
@@ -242,6 +249,7 @@ const adminController = {
         try {
             const { userName } = req.params;
             const updatedData = req.body;
+    
             await Admin.aggregate([
                 {
                     $lookup: {
@@ -260,11 +268,11 @@ const adminController = {
                     $unwind: '$userData'
                 },
                 {
-                    $set: updatedData
-                },
-                {
-                    $project: {
-                        userData: 0,
+                    $set: {
+                        // Only update specific fields
+                        assignedDepartments: updatedData.assignedDepartments,
+                        // Add other fields here if needed
+                        updatedAt: new Date()  // Update the updatedAt field
                     }
                 },
                 {
@@ -280,6 +288,7 @@ const adminController = {
             return res.status(500).json({ message: err.message });
         }
     },
+    
     
 
     // Delete a doctor by UserName
