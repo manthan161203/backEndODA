@@ -18,8 +18,11 @@ router.get('/getPendingAppointmentsCount/:doctorID', doctorController.getPending
 router.get('/getPendingAppointments/:doctorID', doctorController.getPendingAppointmentsByDoctorID);
 router.post('/acceptAppointment/:appointmentID', doctorController.acceptAppointment);
 router.get('/getAppointmentsHistoryByDoctorID/:doctorID', doctorController.getAppointmentsHistoryByDoctorID);
+router.get('/recommendDoctor/:appointmentID/:doctorID', doctorController.recommendDoctor);
 router.get('/getAllDoctors', doctorController.getAllDoctors);
 router.post('/createDoctor', doctorController.createDoctor);
+router.get('/startAppointment/:appointmentID', doctorController.startAppointment);
+router.get('/completeAppointment/:appointmentID', doctorController.completeAppointment);
 router.get('/getAllAppointments', doctorController.getAllAppointments);
 router.get('/getRoleBasedDetails/:userName', doctorController.getRoleBasedDetails);
 

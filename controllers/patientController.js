@@ -5,6 +5,7 @@ const User = require("../models/userSchema");
 const sendOTPViaEmail = require("../services/otpNodeMailer");
 const UnifiedDoctor = require("../models/unifiedDoctorSchema");
 const Hospital = require("../models/hospitalSchema");
+const mongoose = require("mongoose");
 
 const sendEmailNotification = async (emailData) => {
   try {
@@ -201,7 +202,7 @@ const patientController = {
         try {
             const patientData = req.body;
             // console.log('Received patient data:', patientData);
-    
+          console.log(patientData)
             const userId = patientData.user;
             if (!userId) {
                 // console.error('User ID is missing in the request body.');
@@ -212,7 +213,7 @@ const patientController = {
             try {
                 userObjectId = mongoose.Types.ObjectId.createFromHexString(userId);
             } catch (error) {
-                // console.error('Invalid User ID format:', error.message);
+                console.error('Invalid User ID format:', error.message);
                 return res.status(400).json({ message: 'Invalid User ID format.' });
             }
     
@@ -236,6 +237,7 @@ const patientController = {
     try {
       const { emailID } = req.params;
       const appointmentData = req.body;
+      console.log(appointmentData)
       const getAppointmentsByDate = await Appointment.find({
         date: appointmentData.date,
         doctor: appointmentData.doctor,
@@ -261,7 +263,7 @@ const patientController = {
           emailData.date = appointmentData.date;
           emailData.time = appointmentData.slot.startTime+" - "+appointmentData.slot.endTime;;
 
-          sendEmailNotification(emailData);
+          // sendEmailNotification(emailData);
           res.status(200).json({ message: "Appointment request is received" });
         } else {
           res.status(201).json({ message: "Failed", code: "1" });
