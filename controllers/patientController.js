@@ -5,7 +5,6 @@ const User = require("../models/userSchema");
 const sendOTPViaEmail = require("../services/otpNodeMailer");
 const UnifiedDoctor = require("../models/unifiedDoctorSchema");
 const Hospital = require("../models/hospitalSchema");
-const mongoose = require('mongoose');
 const mongoose = require("mongoose");
 
 const sendEmailNotification = async (emailData) => {
@@ -38,8 +37,8 @@ const sendEmailNotification = async (emailData) => {
                                         <td style="vertical-align: top;">
                                             <p style="margin-bottom: 20px; color: #666666;"><strong>Doctor:</strong> ${emailData.doctorName}</p>
                                             <p style="margin-bottom: 20px; color: #666666;"><strong>Date:</strong> ${emailData.date}</p>
-                                            <p style="margin-bottom: 20px; color: #666666;"><strong>Time:</strong> ${emailData.PatientName}</p>
-                                            <p style="margin-bottom: 20px; color: #666666;"><strong>Location:</strong> ${emailData.location}</p>
+                                            <p style="margin-bottom: 20px; color: #666666;"><strong>Time:</strong> ${emailData.time}</p>
+                                            <p style="margin-bottom: 20px; color: #666666;"><strong></strong> ${emailData.location == null? "" :"Location :"+emailData.location}</p>
                                         </td>
                                         <td style="vertical-align: top; padding-right: 20px;">
                                             <img src="http://easy-health-care.infinityfreeapp.com/appointmentPending.png" alt="Doctor Image" width="150" style="border-radius: 8px;">
@@ -257,6 +256,11 @@ const patientController = {
             const hospital = await Hospital.findById(doctor.hospitalID);
             emailData.location = hospital.location;
           }
+          else if(doctor.doctorType === "therapist"){
+            emailData.location = doctor.therapistAddress;
+          }else if(doctor.doctorType === "clinical doctor"){
+            emailData.location = doctor.clinicAddress;
+          }
           console.log(doctor)
           emailData.email = emailID;
           emailData.PatientName = userData.firstName+" "+userData.lastName;
@@ -264,7 +268,7 @@ const patientController = {
           emailData.date = appointmentData.date;
           emailData.time = appointmentData.slot.startTime+" - "+appointmentData.slot.endTime;;
 
-          // sendEmailNotification(emailData);
+          sendEmailNotification(emailData);
           res.status(200).json({ message: "Appointment request is received" });
         } else {
           res.status(201).json({ message: "Failed", code: "1" });

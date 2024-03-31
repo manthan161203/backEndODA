@@ -4,7 +4,6 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const sendOTPViaSMS = require('../services/otpTwilio');
 const sendOTPViaEmail = require('../services/otpNodeMailer');
-
 // Function to generate OTP
 const generateOTP = () => {
     const otp = Math.floor(1000 + Math.random() * 9000).toString();
@@ -50,6 +49,7 @@ const sendOTPForgotPassword = async (req, res) => {
             await sendOTPViaSMS(phoneNumber, otp);
         } else if (sendMethod === 'email') {
             const email = user.email;
+            const htmlTemplate = ``;
             await sendOTPViaEmail(email, "Verification Code", "Your verification code is: " + otp);
         } else {
             throw new Error('Invalid send method');
@@ -88,7 +88,50 @@ const addOTPByUserName = async (req, res) => {
             await sendOTPViaSMS(phoneNumber, otp);
         } else if (sendMethod === 'email') {
             const email = user.email;
-            await sendOTPViaEmail(email, "Verification Code", "Your verification code is: " + otp);
+            const htmlTemplate = `<!DOCTYPE html>
+            <html lang="en">
+            
+            <head>
+                <meta charset="UTF-8">
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <title>Login OTP</title>
+            </head>
+            
+            <body style="font-family: Arial, sans-serif; margin: 0; padding: 0; background-color: #f4f4f4;">
+                <table role="presentation" width="100%" cellspacing="0" cellpadding="0" border="0"
+                    style="margin-top: 50px;">
+                    <tr>
+                        <td>
+                            <table role="presentation" width="600" cellspacing="0" cellpadding="0" border="0"
+                                style="margin: auto; background-color: #ffffff; border-radius: 8px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                                <tr>
+                                    <td style="padding: 40px;">
+                                        <h2 style="margin-top: 0; color: #333333;">Login OTP</h2>
+                                        <!-- Replace placeholders with dynamic data -->
+                                        <p style="margin-bottom: 20px; color: #666666;">Dear ${user.firstName+ " "+user.lastName},</p>
+                                        <p style="margin-bottom: 20px; color: #666666;">Your OTP for login is:</p>
+                                        <h3 style="margin-bottom: 20px; color: #333333;">${otp}</h3>
+                                        <p style="margin-bottom: 20px; color: #666666;">Please use this OTP to login to your account.</p>
+                                        <p style="margin-bottom: 20px; color: #666666;">This OTP is valid for a single login attempt and should not be shared with anyone.</p>
+                                        <!-- Image for additional information -->
+                                        <img src="http://easy-health-care.infinityfreeapp.com/otp.png" alt="Additional Information" style="max-width: 100%; display: block; margin: 20px auto;">
+                                        <p style="margin-bottom: 0; color: #666666;">Best regards,<br>YourAppName Team</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                    <td style="padding: 20px 0; text-align: center; font-size: 12px; color: #666666;">
+                    &copy; 2024 MTM Brothers. All rights reserved.
+                </td>
+                    </tr>
+                </table>
+            </body>
+            
+            </html>
+            `;
+            await sendOTPViaEmail(email, "Verification Code", "please dont share otp", htmlTemplate);
         } else {
             throw new Error('Invalid send method');
         }
