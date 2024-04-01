@@ -58,7 +58,7 @@ const register = {
             if (sendMethod === 'sms') {
                 await sendOTPViaSMS(phoneNumber, otp);
             } else if (sendMethod === 'email') {
-                const email = user.email;
+                const email = req.body.email;
                 const htmlTemplate = `<!DOCTYPE html>
                 <html lang="en">
                 
