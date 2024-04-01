@@ -36,31 +36,24 @@ const sendEmailNotification = async (emailData) => {
                                 <td style="padding: 40px;">
                                     <h2 style="margin-top: 0; color: #333333;">Appointment Accepted</h2>
                                     <!-- Replace placeholders with dynamic data -->
-                                    <p style="margin-bottom: 20px; color: #666666;">Dear ${
-                                      emailData.PatientName
-                                    },</p>
+                                    <p style="margin-bottom: 20px; color: #666666;">Dear ${emailData.PatientName
+        },</p>
                                     <table role="presentation" cellspacing="0" cellpadding="0" border="0" style="width: 100%;">
                                         <tr>
                                             <td style="vertical-align: top;">
-                                                <p style="margin-bottom: 20px; color: #666666;"><strong>Doctor:</strong> ${
-                                                  emailData.DoctorName
-                                                }</p>
-                                                <p style="margin-bottom: 20px; color: #666666;"><strong>Date:</strong> ${
-                                                  emailData.date
-                                                }</p>
-                                                <p style="margin-bottom: 20px; color: #666666;"><strong>Time:</strong> ${
-                                                  emailData.time
-                                                }</p>
-                                                <p style="margin-bottom: 20px; color: #666666;"><strong>Location:</strong> ${
-                                                  emailData.location
-                                                }</p>
-                                                <p style="margin-bottom: 20px; color: #666666;"><strong>Prerequisite:</strong> ${
-                                                  emailData.prerequisite ??
-                                                  "No Prerequisite"
-                                                }</p>
-                                                <p style="margin-bottom: 20px; color: #666666;"><strong>Notes:</strong> ${
-                                                  emailData.notes ?? "No Notes"
-                                                }</p>
+                                                <p style="margin-bottom: 20px; color: #666666;"><strong>Doctor:</strong> ${emailData.DoctorName
+        }</p>
+                                                <p style="margin-bottom: 20px; color: #666666;"><strong>Date:</strong> ${emailData.date
+        }</p>
+                                                <p style="margin-bottom: 20px; color: #666666;"><strong>Time:</strong> ${emailData.time
+        }</p>
+                                                <p style="margin-bottom: 20px; color: #666666;"><strong>Location:</strong> ${emailData.location
+        }</p>
+                                                <p style="margin-bottom: 20px; color: #666666;"><strong>Prerequisite:</strong> ${emailData.prerequisite ??
+        "No Prerequisite"
+        }</p>
+                                                <p style="margin-bottom: 20px; color: #666666;"><strong>Notes:</strong> ${emailData.notes ?? "No Notes"
+        }</p>
                                             </td>
                                             <td style="vertical-align: top; padding-right: 20px;">
                                                 <img src="http://easy-health-care.infinityfreeapp.com/appointmentAccepted.png" alt="Doctor Image" width="150" style="border-radius: 8px;">
@@ -112,7 +105,7 @@ const sendEmailNotification = async (emailData) => {
                                                 <p style="margin-bottom: 20px; color: #666666;"><strong>Doctor:</strong> ${emailData.DoctorName}</p>
                                                 <p style="margin-bottom: 20px; color: #666666;"><strong>Date:</strong> ${emailData.date}</p>
                                                 <p style="margin-bottom: 20px; color: #666666;"><strong>Time:</strong> ${emailData.time}</p>
-                                                <p style="margin-bottom: 20px; color: #666666;"><strong>Location:</strong> ${emailData.location??"location is not provided"}</p>
+                                                <p style="margin-bottom: 20px; color: #666666;"><strong>Location:</strong> ${emailData.location ?? "location is not provided"}</p>
                                                 <p style="margin-bottom: 20px; color: #666666;"><strong>Reason:</strong> Doctor Is Busy</p>
                                             </td>
                                             <td style="vertical-align: top; padding-right: 20px;">
@@ -168,7 +161,7 @@ const sendEmailNotification = async (emailData) => {
                                                   ${emailData.DoctorName}</p>
                                               <p style="margin-bottom: 20px; color: #666666;"><strong>Date:</strong>
                                                   ${emailData.date}</p>
-                                                 
+                                                
                                               <p style="margin-bottom: 20px; color: #666666;"><strong> Recommended Doctor Name:</strong>
                                                   ${emailData.recommendedDoctorName}</p>
                                               <p style="margin-bottom: 20px; color: #666666;"><strong>Recommended Hospital Location:</strong>
@@ -218,7 +211,7 @@ const unifiedDoctorController = {
         { doctor: true }
       );
       console.log(doctorId);
-      const appointments = await Appointments.find({ doctor: doctorId._id,status:{$in:["Pending","Active","Accepted"]} })
+      const appointments = await Appointments.find({ doctor: doctorId._id, status: { $in: ["Pending", "Active", "Accepted"] } })
         .sort({ date: 1 })
         .populate({ path: "patient", populate: "user" })
         .populate({ path: "doctor", populate: "user" })
@@ -551,7 +544,7 @@ const unifiedDoctorController = {
   },
   recommendDoctor: async (req, res) => {
     try {
-      const { appointmentID,doctorID } = req.params;
+      const { appointmentID, doctorID } = req.params;
       console.log(req.params)
       console.log(doctorID)
       const appointment = await Appointments.findByIdAndUpdate(
@@ -582,7 +575,7 @@ const unifiedDoctorController = {
       emailData.recommendedDoctorName = recommendedDoctorData.firstName + " " + recommendedDoctorData.lastName;
       emailData.date = appointment.date;
       if(recommendedhospitalData)
-      emailData.location = recommendedhospitalData.location;
+        emailData.location = recommendedhospitalData.location;
       emailData.email = appointment.patient.user.email;
       emailData.status = "Recommended";
       await sendEmailNotification(emailData);
@@ -596,7 +589,7 @@ const unifiedDoctorController = {
   startAppointment: async (req, res) => {
     try {
       const { appointmentID } = req.params;
-      const appointment = await Appointment.findByIdAndUpdate(appointmentID,{$set: {status:"Active"}}); 
+      const appointment = await Appointment.findByIdAndUpdate(appointmentID, { $set: { status: "Active" } });
       res.status(200).json(appointment);
     } catch (error) {
       console.error(error);
@@ -606,7 +599,7 @@ const unifiedDoctorController = {
   completeAppointment: async (req, res) => {
     try {
       const { appointmentID } = req.params;
-      const appointment = await Appointment.findByIdAndUpdate(appointmentID,{$set: {status:"Completed"}}); 
+      const appointment = await Appointment.findByIdAndUpdate(appointmentID, { $set: { status: "Completed" } });
       res.status(200).json(appointment);
     } catch (error) {
       console.error(error);
@@ -633,16 +626,22 @@ const unifiedDoctorController = {
       doctorData.user = userObjectId;
       if (doctorData.doctorType === "doctor") {
         let hospitalId = doctorData.hospitalID;
-        const hospital = Hospital.find({hospitalId: hospitalId});
-        hospitalId = hospital._id;
-        if (hospitalId) {
-          doctorData.hospitalID =  mongoose.Types.ObjectId.createFromHexString(hospitalId);
-        } else {
-          return res
-            .status(400)
-            .json({ message: "Hospital ID is required for Doctor type." });
+
+        try {
+          const hospital = await Hospital.findOne({ hospitalId: hospitalId });
+
+          if (!hospital) {
+            return res.status(400).json({ message: "Hospital not found for the provided ID." });
+          }
+
+          doctorData.hospitalID = hospital._id;
+        } catch (error) {
+          // Handle any errors that occur during the database query
+          console.error("Error finding hospital:", error);
+          return res.status(500).json({ message: "Internal server error" });
         }
       }
+
       const createdDoctor = await UnifiedDoctor.create(doctorData);
       await User.updateOne({ _id: userObjectId }, { $set: { isSubProfileSet: true } });
       return res
