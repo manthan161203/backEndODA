@@ -123,6 +123,7 @@ const register = {
                 address,
                 gender,
                 role,
+                image: '',
                 otp: [temporaryOTP]
             });
 

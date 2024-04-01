@@ -643,7 +643,7 @@ const unifiedDoctorController = {
         }
       }
       const createdDoctor = await UnifiedDoctor.create(doctorData);
-
+      await User.updateOne({ _id: userObjectId }, { $set: { isSubProfileSet: true } });
       return res
         .status(200)
         .json({

@@ -217,14 +217,9 @@ const patientController = {
                 return res.status(400).json({ message: 'Invalid User ID format.' });
             }
     
-            patientData.isSubProfileSet = true;
-            
-            patientData.user = userObjectId;
-            // console.log('Updated patient data:', patientData);
-    
             const createdPatient = await Patient.create(patientData);
             // console.log('Patient Created:', createdPatient);
-    
+            await User.updateOne({ _id: userObjectId }, { $set: { isSubProfileSet: true } });
             return res.status(200).json({ message: 'Patient Created Successfully', patient: createdPatient });
         } catch (error) {
             console.error('Error creating patient:', error.message);

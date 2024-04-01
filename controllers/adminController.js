@@ -86,7 +86,7 @@ const adminController = {
             adminData.user = userObjectId;
     
             const createdAdmin = await Admin.create(adminData);
-    
+            await User.updateOne({ _id: userObjectId }, { $set: { isSubProfileSet: true } });
             return res.status(200).json({ message: 'Admin Created Successfully', admin: createdAdmin });
         } catch (error) {
             console.error('Error creating admin:', error.message);
