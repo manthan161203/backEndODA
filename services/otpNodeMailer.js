@@ -14,7 +14,7 @@ const sendOTPViaEmail = async (to, subject, text, htmlTemplate) => {
     });
     if (htmlTemplate != null) {
       const mailOptions = {
-        from: process.env.MAIL_FOR_OTP,
+        from: '"Eazy Heathcare" <eazyHeathCare@gmail.com>',
         to,
         subject,
         text,
@@ -26,7 +26,7 @@ const sendOTPViaEmail = async (to, subject, text, htmlTemplate) => {
       return info.messageId;
     } else {
       const mailOptions = {
-        from: process.env.MAIL_FOR_OTP,
+        from: '"Eazy Heathcare" <eazyHeathCare@gmail.com>',
         to,
         subject,
         text,

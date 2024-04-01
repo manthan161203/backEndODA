@@ -413,12 +413,15 @@ const unifiedDoctorController = {
       })
         .populate({ path: "patient", populate: "user" })
         .exec();
+        console.log("appointment count"+appointments)
+      const date = moment().format("YYYY-MM-DD");
       const todayAppointments = appointments.filter((app) => {
-        if (moment().isSame(moment(app.date))) {
+        console.log(app.date)
+        if (date == app.date) {
           return app;
         }
       });
-      // console.log(todayAppointments)
+      console.log(todayAppointments)
       res.status(200).json(todayAppointments.length ?? 0);
     } catch (error) {
       console.error(error);
@@ -773,6 +776,18 @@ const unifiedDoctorController = {
   getAllDoctors: async (req, res) => {
     try {
       const doctors = await UnifiedDoctor.find().populate("user");
+      res.status(200).json(doctors);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  },
+  getAllDoctorsForRecommendation: async (req, res) => {
+    try {
+      const {doctorID} = req.params;
+      const doctor = await UnifiedDoctor.findOne({user:doctorID});
+      const doctors = await UnifiedDoctor.find({_id:{$ne:doctor._id}}).populate("user");
+      console.log(doctors)
       res.status(200).json(doctors);
     } catch (error) {
       console.error(error);

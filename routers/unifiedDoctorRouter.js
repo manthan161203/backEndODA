@@ -20,6 +20,7 @@ router.post('/acceptAppointment/:appointmentID', doctorController.acceptAppointm
 router.get('/getAppointmentsHistoryByDoctorID/:doctorID', doctorController.getAppointmentsHistoryByDoctorID);
 router.get('/recommendDoctor/:appointmentID/:doctorID', doctorController.recommendDoctor);
 router.get('/getAllDoctors', doctorController.getAllDoctors);
+router.get('/getAllDoctorsForRecommendation/:doctorID', doctorController.getAllDoctorsForRecommendation);
 router.post('/createDoctor', doctorController.createDoctor);
 router.get('/startAppointment/:appointmentID', doctorController.startAppointment);
 router.get('/completeAppointment/:appointmentID', doctorController.completeAppointment);
