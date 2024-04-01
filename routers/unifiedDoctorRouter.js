@@ -25,5 +25,6 @@ router.get('/startAppointment/:appointmentID', doctorController.startAppointment
 router.get('/completeAppointment/:appointmentID', doctorController.completeAppointment);
 router.get('/getAllAppointments', doctorController.getAllAppointments);
 router.get('/getRoleBasedDetails/:userName', doctorController.getRoleBasedDetails);
+router.get('/rejectAppointment/:appointmentID', doctorController.rejectAppointment);
 
 module.exports = router;

@@ -10,8 +10,7 @@ const Appointment = require("../models/appointmentSchema");
 const Hospital = require("../models/hospitalSchema");
 const sendEmailNotification = async (emailData) => {
   try {
-    // const toEmail = emailData.email;
-    const toEmail = "tirthprajapati26@gmail.com";
+    const toEmail = emailData.email;
     const subject = "Appointment Status Update";
     var htmlTemplate;
     var text;
@@ -509,6 +508,49 @@ const unifiedDoctorController = {
       res.status(500).json({ error: "Internal Server Error" });
     }
   },
+  rejectAppointment: async (req, res) => {
+    try {
+      const { appointmentID } = req.params;
+      const appointment = await Appointments.findByIdAndUpdate(
+        appointmentID,
+        {
+          $set: {
+            status: "Rejected",
+            prerequisite: req.body.prerequisite,
+            notes: req.body.notes,
+          },
+        },
+        { new: true }
+      )
+        .populate({ path: "patient", populate: "user" })
+        .exec();
+      console.log(appointment);
+      const doctor = await UnifiedDoctor.findById(appointment.doctor);
+      const doctorData = await User.findById(doctor.user);
+      const hospitalData = await Hospital.findById(doctor.hospitalID);
+      const emailData = {};
+      emailData.PatientName =
+        appointment.patient.user.firstName +
+        " " +
+        appointment.patient.user.lastName;
+      emailData.DoctorName = doctorData.firstName + " " + doctorData.lastName;
+      emailData.time =
+        appointment.slot.startTime + " " + appointment.slot.endTime;
+      emailData.date = appointment.date;
+      emailData.location = hospitalData.location;
+      emailData.prerequisite = req.body.prerequisite;
+      emailData.notes = req.body.notes;
+      emailData.email = appointment.patient.user.email;
+      emailData.status = "Rejected";
+
+      await sendEmailNotification(emailData);
+      // res.status(200).json({ message: 'Appointment status updated successfully' });
+      res.status(200).json(appointment);
+    } catch (error) {
+      console.error(error);
+      res.status(500).json({ error: "Internal Server Error" });
+    }
+  },
   updateAppointmentStatus: async (req, res) => {
     try {
       const { appointmentID } = req.params;
@@ -551,6 +593,7 @@ const unifiedDoctorController = {
         appointmentID,
         {
           $set: {
+            recommendedDoctors: [doctorID],
             status: "Recommended",
           },
         },
@@ -560,6 +603,7 @@ const unifiedDoctorController = {
         .exec();
       console.log(appointment);
       const doctor = await UnifiedDoctor.findById(appointment.doctor);
+      // console.log(recommendedDoctor)
       const recommendedDoctor = await UnifiedDoctor.findById(appointment.recommendedDoctors[0]);
       const doctorData = await User.findById(doctor.user);
       const recommendedDoctorData = await User.findById(recommendedDoctor.user);
