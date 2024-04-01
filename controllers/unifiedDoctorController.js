@@ -711,9 +711,12 @@ const unifiedDoctorController = {
   getDoctorByType: async (req, res) => {
     try {
       const { doctorType } = req.params;
+      let doctor = doctorType;
+      if(doctor == "clinicaldoctor")
+        doctor = "clinical doctor"
       // console.log(specialization);
       const doctors = await UnifiedDoctor.find({
-        doctorType: doctorType,
+        doctorType: doctor,
       }).populate(["user", "hospitalID"]);
       res.status(200).json(doctors);
     } catch (error) {
