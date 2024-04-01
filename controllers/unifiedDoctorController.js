@@ -632,10 +632,11 @@ const unifiedDoctorController = {
 
       doctorData.user = userObjectId;
       if (doctorData.doctorType === "doctor") {
-        const hospitalId = doctorData.hospitalID;
+        let hospitalId = doctorData.hospitalID;
+        const hospital = Hospital.find({hospitalId: hospitalId});
+        hospitalId = hospital._id;
         if (hospitalId) {
-          doctorData.hospitalID =
-            mongoose.Types.ObjectId.createFromHexString(hospitalId);
+          doctorData.hospitalID =  mongoose.Types.ObjectId.createFromHexString(hospitalId);
         } else {
           return res
             .status(400)
