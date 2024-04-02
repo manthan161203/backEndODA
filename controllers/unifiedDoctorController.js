@@ -497,7 +497,17 @@ const unifiedDoctorController = {
       emailData.time =
         appointment.slot.startTime + " " + appointment.slot.endTime;
       emailData.date = appointment.date;
+      if(hospitalData == null){
+        if(doctor.doctorType == "clinical doctor"){
+          emailData.location = doctor.clinicAddress;
+        }else if(doctor.doctorType == "therapist"){
+          emailData.location = doctor.therapistAddress;
+        }else{
+          emailData.location = "456 Maple Avenue, Townsville, Gujarat";
+        }
+      }else{
       emailData.location = hospitalData.location;
+      }
       emailData.prerequisite = req.body.prerequisite;
       emailData.notes = req.body.notes;
       emailData.email = appointment.patient.user.email;
@@ -540,7 +550,17 @@ const unifiedDoctorController = {
       emailData.time =
         appointment.slot.startTime + " " + appointment.slot.endTime;
       emailData.date = appointment.date;
+      if(hospitalData == null){
+        if(doctor.doctorType == "clinical doctor"){
+          emailData.location = doctor.clinicAddress;
+        }else if(doctor.doctorType == "therapist"){
+          emailData.location = doctor.therapistAddress;
+        }else{
+          emailData.location = "456 Maple Avenue, Townsville, Gujarat";
+        }
+      }else{
       emailData.location = hospitalData.location;
+      }
       emailData.prerequisite = req.body.prerequisite;
       emailData.notes = req.body.notes;
       emailData.email = appointment.patient.user.email;
